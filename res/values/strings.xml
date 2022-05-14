@@ -1,0 +1,9 @@
+<resources>
+    <string name="app_name">UaFinance</string>
+    <string name="item_costs">Списки потоків</string>
+    <string name="item_map">Карта витрат</string>
+    <string name="item_statistic">Статистика</string>
+    <string name="red_cat_guard">Рудий кіт завжди на варті</string>
+    <string name="navigation_drawer_open">Open navigation drawer</string>
+    <string name="navigation_drawer_close">Close navigation drawer</string>
+</resources>
