@@ -79,7 +79,7 @@ public final class DBContract {
         public static final String CREATE_TABLE_ACCOUNTS = "CREATE TABLE IF NOT EXISTS " +
                 TABLE_NAME + " (" +
                 COLUMN_ACCOUNT_ID + " INTEGER PRIMARY KEY AUTOINCREMENT, " +
-                COLUMN_NUMBER + " TEXT NOT NULL)";
+                COLUMN_NUMBER + " TEXT NOT NULL UNIQUE)";
     }
 
     public static class Photos implements BaseColumns {
