@@ -12,6 +12,7 @@
     <color name="center_blue">#0D94FB</color>
     <color name="bright_yellow">#FAE41B</color>
     <color name="transparent">#00000000</color>
+    <color name="red">#FB0A0A</color>
 
     <!--colors for categories-->
     <color name="food">#0AC2F1</color>
