@@ -1,5 +1,6 @@
 package com.tish.db.connectors;
 
+import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
@@ -7,6 +8,8 @@ import android.database.sqlite.SQLiteDatabase;
 import com.tish.db.bases.DBContract.Geolocations;
 import com.tish.db.bases.DBHelper;
 import com.tish.models.Geolocation;
+
+import java.sql.ResultSet;
 
 public class GeoConnector {
     private DBHelper dbHelper;
@@ -32,4 +35,30 @@ public class GeoConnector {
         db.close();
         return geo;
     }
+
+    public int insertGeolocationToGetId(Geolocation geo) {
+        int geoId = -1;
+        db = dbHelper.getWritableDatabase();
+        geoCursor = db.rawQuery("select " + Geolocations.COLUMN_GEO_ID + " from " + Geolocations.TABLE_NAME + " where "
+                        + Geolocations.COLUMN_LONGITUDE + "=? and "
+                        + Geolocations.COLUMN_LATITUDE + "=? and "
+                        + Geolocations.COLUMN_ADDRESS + "=?",
+                new String[]{String.valueOf(geo.getLongitude()), String.valueOf(geo.getLatitude()), geo.getAddress()});
+        if (geoCursor.getCount() == 0) {
+            ContentValues cvGeo = new ContentValues();
+            cvGeo.put(Geolocations.COLUMN_LONGITUDE, geo.getLongitude());
+            cvGeo.put(Geolocations.COLUMN_LATITUDE, geo.getLatitude());
+            cvGeo.put(Geolocations.COLUMN_COUNTRY, geo.getCountry());
+            cvGeo.put(Geolocations.COLUMN_CITY, geo.getCity());
+            cvGeo.put(Geolocations.COLUMN_ADDRESS, geo.getAddress());
+            geoId = (int) db.insert(Geolocations.TABLE_NAME, null, cvGeo);
+        } else {
+            geoCursor.moveToFirst();
+            geoId = geoCursor.getInt(0);
+        }
+        geoCursor.close();
+        db.close();
+        return geoId;
+    }
+
 }

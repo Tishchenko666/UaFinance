@@ -3,14 +3,20 @@ package com.tish;
 import android.graphics.Color;
 import android.os.Bundle;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 
+import android.view.ContextMenu;
+import android.view.ContextMenu.ContextMenuInfo;
 import android.view.Gravity;
 import android.view.LayoutInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
+import android.widget.AdapterView.AdapterContextMenuInfo;
 import android.widget.ExpandableListView;
 import android.widget.ImageButton;
 import android.widget.TextSwitcher;
@@ -25,6 +31,8 @@ import com.github.mikephil.charting.data.PieEntry;
 import com.tish.adapters.CostsExpListAdapter;
 import com.tish.db.bases.UkrainianMonth;
 import com.tish.db.connectors.CostConnector;
+import com.tish.dialogs.EditCostDialog;
+import com.tish.dialogs.EditGeoDialog;
 import com.tish.models.Cost;
 
 import java.time.YearMonth;
@@ -92,6 +100,7 @@ public class CostsListFragment extends Fragment {
 
         initButtons();
 
+        registerForContextMenu(costsListView);
         return view;
     }
 
@@ -178,5 +187,31 @@ public class CostsListFragment extends Fragment {
         chart.setCenterText(String.valueOf(entries.stream().map(PieEntry::getValue).reduce(0f, Float::sum)));
         chart.notifyDataSetChanged();
         chart.invalidate();
+    }
+
+    @Override
+    public void onCreateContextMenu(@NonNull ContextMenu menu, @NonNull View v, @Nullable ContextMenuInfo menuInfo) {
+        super.onCreateContextMenu(menu, v, menuInfo);
+        getActivity().getMenuInflater().inflate(R.menu.cost_list_context_menu, menu);
+    }
+
+    @Override
+    public boolean onContextItemSelected(@NonNull MenuItem item) {
+        AdapterContextMenuInfo info = (AdapterContextMenuInfo) item.getMenuInfo();
+        Cost selectedCost = costsListAdapter.getGroup(info.position);
+        switch (item.getItemId()) {
+            case R.id.context_item_edit_cost:
+                EditCostDialog editCostDialog = new EditCostDialog(getContext(), selectedCost);
+                editCostDialog.show(getActivity().getSupportFragmentManager(), "ecd");
+                return true;
+            case R.id.context_item_edit_geo:
+                EditGeoDialog editGeoDialog = new EditGeoDialog(getContext(), selectedCost.getGeo(), selectedCost.getCostId());
+                editGeoDialog.show(getActivity().getSupportFragmentManager(), "egd");
+                return true;
+            case R.id.context_item_edit_photo:
+                //describe later
+                return true;
+        }
+        return super.onContextItemSelected(item);
     }
 }

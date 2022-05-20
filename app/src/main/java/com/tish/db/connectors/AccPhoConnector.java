@@ -1,5 +1,6 @@
 package com.tish.db.connectors;
 
+import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
@@ -55,6 +56,25 @@ public class AccPhoConnector {
         apCursor.close();
         db.close();
         return address;
+    }
+
+    public int getAccountIdByNumber(String number) {
+        db = dbHelper.getReadableDatabase();
+        apCursor = db.rawQuery("select " + Accounts.COLUMN_ACCOUNT_ID + " from " + Accounts.TABLE_NAME + " where " + Accounts.COLUMN_NUMBER + "=" + number, null);
+        apCursor.moveToFirst();
+        int accountId = apCursor.getInt(apCursor.getColumnIndexOrThrow(Accounts.COLUMN_ACCOUNT_ID));
+        apCursor.close();
+        db.close();
+        return accountId;
+    }
+
+    public int insertPhotoToGetPhotoId(String address) {
+        ContentValues cvPhoto = new ContentValues();
+        cvPhoto.put(Photos.COLUMN_LINK, address);
+        db = dbHelper.getWritableDatabase();
+        int photoId = (int) db.insert(Photos.TABLE_NAME, null, cvPhoto);
+        db.close();
+        return photoId;
     }
 
 }

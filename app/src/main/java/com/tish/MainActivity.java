@@ -13,13 +13,18 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.ArrayAdapter;
 import android.widget.Spinner;
+import android.widget.Toast;
 
 import com.google.android.material.navigation.NavigationView;
 import com.tish.db.connectors.AccPhoConnector;
+import com.tish.dialogs.AddCostDialog;
+import com.tish.interfaces.FragmentSendDataListener;
 
 import java.util.List;
 
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends AppCompatActivity implements FragmentSendDataListener {
+
+    FragmentTransaction fragmentTransaction;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -30,7 +35,7 @@ public class MainActivity extends AppCompatActivity {
 
     private void initView() {
         CostsListFragment costsListFragment = new CostsListFragment();
-        FragmentTransaction fragmentTransaction = getSupportFragmentManager().beginTransaction();
+        fragmentTransaction = getSupportFragmentManager().beginTransaction();
         fragmentTransaction.add(R.id.main_container, costsListFragment, "TAG_COSTS_FRAGMENT");
         fragmentTransaction.commit();
         Toolbar toolbar = findViewById(R.id.toolbar_view);
@@ -58,6 +63,17 @@ public class MainActivity extends AppCompatActivity {
     }
 
     @Override
+    public void onSendData(long data) {
+        if (data != -1 || data > 0) {
+            CostsListFragment clf = null;
+            clf = (CostsListFragment) getSupportFragmentManager().findFragmentByTag("TAG_COSTS_FRAGMENT");
+            fragmentTransaction = getSupportFragmentManager().beginTransaction();
+            fragmentTransaction.detach(clf).attach(clf).commit();
+        } else if (data == -1)
+            Toast.makeText(this, "При обробці витрати виникла помилка", Toast.LENGTH_SHORT).show();
+    }
+
+    @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.fragment_cost_list_menu, menu);
         return true;
@@ -67,8 +83,8 @@ public class MainActivity extends AppCompatActivity {
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case R.id.item_add_cost:
-                //describe
-
+                AddCostDialog addCostDialog = new AddCostDialog(MainActivity.this);
+                addCostDialog.show(getSupportFragmentManager(), "acd");
                 break;
             case R.id.item_change_type:
                 //describe
@@ -85,4 +101,6 @@ public class MainActivity extends AppCompatActivity {
             super.onBackPressed();
         }
     }
+
+
 }

@@ -126,8 +126,8 @@ public class CostsExpListAdapter extends BaseExpandableListAdapter {
     }
 
     @Override
-    public Object getGroup(int groupPosition) {
-        return null;
+    public Cost getGroup(int groupPosition) {
+        return costList.get(groupPosition);
     }
 
     @Override

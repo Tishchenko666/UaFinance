@@ -1,5 +1,6 @@
 package com.tish.db.connectors;
 
+import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
@@ -155,5 +156,57 @@ public class CostConnector {
         costCursor.close();
         db.close();
         return dateList;
+    }
+
+    public long insertNewCost(Cost cost) {
+        ContentValues cvNewCost = new ContentValues();
+        cvNewCost.put(Costs.COLUMN_CATEGORY, cost.getCategory().toString());
+        cvNewCost.put(Costs.COLUMN_AMOUNT, cost.getAmount());
+        cvNewCost.put(Costs.COLUMN_DATE, cost.getDate());
+        cvNewCost.put(Costs.COLUMN_MARKET_NAME, cost.getMarketName());
+        if (cost.getAccountNumber() != null) {
+            cvNewCost.put(Costs.COLUMN_ACCOUNT_ID, accPhoConnector.getAccountIdByNumber(cost.getAccountNumber()));
+        }
+        if (cost.getGeo() != null) {
+            cvNewCost.put(Costs.COLUMN_GEO_ID, geoConnector.insertGeolocationToGetId(cost.getGeo()));
+        }
+        if (cost.getPhotoAddress() != null) {
+            cvNewCost.put(Costs.COLUMN_PHOTO_ID, accPhoConnector.insertPhotoToGetPhotoId(cost.getPhotoAddress()));
+        }
+        db = dbHelper.getWritableDatabase();
+        long result = db.insert(Costs.TABLE_NAME, null, cvNewCost);
+        db.close();
+        return result;
+    }
+
+    public int updateCost(Cost editCost, boolean updateAmount) {
+        ContentValues cvEditCost = new ContentValues();
+        cvEditCost.put(Costs.COLUMN_CATEGORY, editCost.getCategory().toString());
+        cvEditCost.put(Costs.COLUMN_AMOUNT, editCost.getAmount());
+        cvEditCost.put(Costs.COLUMN_DATE, editCost.getDate());
+        cvEditCost.put(Costs.COLUMN_MARKET_NAME, editCost.getMarketName());
+        if (updateAmount) {
+            if (editCost.getAccountNumber() != null)
+                cvEditCost.put(Costs.COLUMN_ACCOUNT_ID, accPhoConnector.getAccountIdByNumber(editCost.getAccountNumber()));
+            else
+                cvEditCost.put(Costs.COLUMN_ACCOUNT_ID, editCost.getAccountNumber());
+        }
+        db = dbHelper.getWritableDatabase();
+        int result = db.update(Costs.TABLE_NAME, cvEditCost, Costs.COLUMN_COST_ID + "=" + editCost.getCostId(), null);
+        db.close();
+        return result;
+    }
+
+    public int updateGeoInCost(Geolocation editGeo, int costId) {
+        int geoId = geoConnector.insertGeolocationToGetId(editGeo);
+        int result = 0;
+        if (geoId != editGeo.getGeoId()) {
+            ContentValues cvEditGeoInCost = new ContentValues();
+            cvEditGeoInCost.put(Costs.COLUMN_GEO_ID, geoId);
+            db = dbHelper.getWritableDatabase();
+            result = db.update(Costs.TABLE_NAME, cvEditGeoInCost, Costs.COLUMN_COST_ID + "=" + costId, null);
+            db.close();
+        }
+        return result;
     }
 }
