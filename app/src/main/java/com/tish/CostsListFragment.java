@@ -1,6 +1,14 @@
 package com.tish;
 
+import android.annotation.SuppressLint;
+import android.app.AlertDialog;
+import android.content.DialogInterface;
 import android.graphics.Color;
+import android.graphics.drawable.BitmapDrawable;
+import android.graphics.drawable.Drawable;
+import android.graphics.drawable.LayerDrawable;
+import android.graphics.drawable.ShapeDrawable;
+import android.graphics.drawable.shapes.OvalShape;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
@@ -21,13 +29,17 @@ import android.widget.ExpandableListView;
 import android.widget.ImageButton;
 import android.widget.TextSwitcher;
 import android.widget.TextView;
+import android.widget.Toast;
 import android.widget.ViewSwitcher;
 
 import com.github.mikephil.charting.charts.PieChart;
 import com.github.mikephil.charting.components.Description;
+import com.github.mikephil.charting.data.Entry;
 import com.github.mikephil.charting.data.PieData;
 import com.github.mikephil.charting.data.PieDataSet;
 import com.github.mikephil.charting.data.PieEntry;
+import com.github.mikephil.charting.highlight.Highlight;
+import com.github.mikephil.charting.listener.OnChartValueSelectedListener;
 import com.tish.adapters.CostsExpListAdapter;
 import com.tish.db.bases.UkrainianMonth;
 import com.tish.db.connectors.CostConnector;
@@ -53,6 +65,7 @@ public class CostsListFragment extends Fragment {
     Animation slideOutRight;
 
     YearMonth thisYearMonth;
+    String account = "";
 
     ExpandableListView costsListView;
     CostsExpListAdapter costsListAdapter;
@@ -68,7 +81,6 @@ public class CostsListFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_costs_list, container, false);
-
         costsListView = view.findViewById(R.id.ex_list_costs);
         backButton = view.findViewById(R.id.ib_back);
         forwardButton = view.findViewById(R.id.ib_forward);
@@ -79,17 +91,27 @@ public class CostsListFragment extends Fragment {
 
         initDates();
 
-        if (costConnector.costsExist()) {
+        boolean costsExist = costConnector.costsExist();
+
+        if (getArguments() != null)
+            account = getArguments().getString("account");
+
+        if (costsExist && account.equals(getContext().getResources().getString(R.string.app_name))) {
             costsList = costConnector.getCostsByDate(thisYearMonth.toString());
-            costsListAdapter = new CostsExpListAdapter(getContext(), costsList);
-            costsListView.setAdapter(costsListAdapter);
             entries = costConnector.getTotalAmountsForCategoriesByDate(thisYearMonth.toString());
             colors = costConnector.getCategoriesColorsByDate(thisYearMonth.toString());
+        } else if (costsExist) {
+            costsList = costConnector.getCostsByDateAccount(thisYearMonth.toString(), account);
+            entries = costConnector.getTotalAmountsForCategoriesByDateAccount(thisYearMonth.toString(), account);
+            colors = costConnector.getCategoriesColorsByDateAccount(thisYearMonth.toString(), account);
         } else {
             entries.add(new PieEntry(1));
             colors = new int[1];
             colors[0] = R.color.bright_blue;
         }
+
+        costsListAdapter = new CostsExpListAdapter(getContext(), costsList);
+        costsListView.setAdapter(costsListAdapter);
 
         set = new PieDataSet(entries, "Costs");
         set.setColors(colors, getContext());
@@ -100,13 +122,14 @@ public class CostsListFragment extends Fragment {
 
         initButtons();
 
+        costsListView.setLongClickable(true);
         registerForContextMenu(costsListView);
         return view;
     }
 
     private void initDates() {
         thisYearMonth = YearMonth.now();
-        dateList = costConnector.getCostDates();
+        dateList = costConnector.getCostDates(0);
         dateCounter = dateList.size() - 1;
         if (!dateList.get(dateCounter).equals(thisYearMonth)) {
             dateList.add(thisYearMonth);
@@ -136,6 +159,7 @@ public class CostsListFragment extends Fragment {
         chart.setCenterText(String.valueOf(entries.stream().map(PieEntry::getValue).reduce(0f, Float::sum)));
         chart.setUsePercentValues(true);
         chart.setDrawEntryLabels(false);
+        chart.setSelected(false);
     }
 
     private void initButtons() {
@@ -178,12 +202,17 @@ public class CostsListFragment extends Fragment {
 
     private void updateDataByDate(String date) {
         costsList.clear();
-        costsList = costConnector.getCostsByDate(date);
-        costsListAdapter.notifyDataSetChanged();
-
         entries.clear();
-        entries = costConnector.getTotalAmountsForCategoriesByDate(date);
-        colors = costConnector.getCategoriesColorsByDate(date);
+        if (account.equals(getContext().getResources().getString(R.string.app_name))) {
+            costsList = costConnector.getCostsByDate(thisYearMonth.toString());
+            entries = costConnector.getTotalAmountsForCategoriesByDate(thisYearMonth.toString());
+            colors = costConnector.getCategoriesColorsByDate(thisYearMonth.toString());
+        } else {
+            costsList = costConnector.getCostsByDate(date);
+            entries = costConnector.getTotalAmountsForCategoriesByDate(date);
+            colors = costConnector.getCategoriesColorsByDate(date);
+        }
+        costsListAdapter.notifyDataSetChanged();
         chart.setCenterText(String.valueOf(entries.stream().map(PieEntry::getValue).reduce(0f, Float::sum)));
         chart.notifyDataSetChanged();
         chart.invalidate();
@@ -195,6 +224,7 @@ public class CostsListFragment extends Fragment {
         getActivity().getMenuInflater().inflate(R.menu.cost_list_context_menu, menu);
     }
 
+    @SuppressLint("NonConstantResourceId")
     @Override
     public boolean onContextItemSelected(@NonNull MenuItem item) {
         AdapterContextMenuInfo info = (AdapterContextMenuInfo) item.getMenuInfo();
@@ -210,6 +240,38 @@ public class CostsListFragment extends Fragment {
                 return true;
             case R.id.context_item_edit_photo:
                 //describe later
+                return true;
+            case R.id.context_item_delete_cost:
+                ShapeDrawable sd = new ShapeDrawable(new OvalShape());
+                sd.setIntrinsicWidth(40);
+                sd.setIntrinsicWidth(40);
+                sd.getPaint().setColor(getContext().getResources().getColor(selectedCost.getCategory().getColorResource(), null));
+                BitmapDrawable bd = (BitmapDrawable) getContext().getResources().getDrawable(selectedCost.getCategory().getIconResource(), null);
+                LayerDrawable icon = new LayerDrawable(new Drawable[]{sd, bd});
+                AlertDialog deleteDialog = new AlertDialog.Builder(getContext())
+                        .setTitle("Видалення витрати")
+                        .setIcon(icon)
+                        .setMessage("Ви певні, що бажаєте видалити витрату категорії '"
+                                + selectedCost.getCategoryName() + "' сумою " + selectedCost.getAmount() + "?")
+                        .setPositiveButton("Так, видалити", new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+                                int result = costConnector.deleteCost(selectedCost.getCostId());
+                                if (result > 0) {
+                                    getActivity().getSupportFragmentManager().beginTransaction()
+                                            .detach(CostsListFragment.this).attach(CostsListFragment.this).commit();
+                                    dialog.dismiss();
+                                } else
+                                    Toast.makeText(getContext(), "При видаленні сталась помилка", Toast.LENGTH_SHORT).show();
+                            }
+                        })
+                        .setNegativeButton("Ні", new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+                                dialog.cancel();
+                            }
+                        }).create();
+                deleteDialog.show();
                 return true;
         }
         return super.onContextItemSelected(item);
