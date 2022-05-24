@@ -108,6 +108,37 @@ public class CostConnector {
         return costsByDate;
     }
 
+    public ArrayList<Cost> getCostsByDateAccount(String currentDate, String currentAccount) {
+        ArrayList<Cost> costsByDate = new ArrayList<>();
+        Cost tempCost;
+        db = dbHelper.getReadableDatabase();
+        costCursor = db.rawQuery("select * from " + Costs.TABLE_NAME + " as c inner join "
+                + Accounts.TABLE_NAME + "as a on c." + Costs.COLUMN_ACCOUNT_ID + "= a." + Accounts.COLUMN_ACCOUNT_ID
+                + " where c." + Costs.COLUMN_DATE + " like '" + currentDate + "%' and a." + Accounts.COLUMN_NUMBER + " like '" + currentAccount + "'", null);
+        costCursor.moveToFirst();
+        while (costCursor.moveToNext()) {
+            int costId = costCursor.getInt(costCursor.getColumnIndexOrThrow(Costs.COLUMN_COST_ID));
+            String category = costCursor.getString(costCursor.getColumnIndexOrThrow(Costs.COLUMN_CATEGORY));
+            double amount = costCursor.getDouble(costCursor.getColumnIndexOrThrow(Costs.COLUMN_AMOUNT));
+            String date = costCursor.getString(costCursor.getColumnIndexOrThrow(Costs.COLUMN_DATE));
+            String marketName = costCursor.getString(costCursor.getColumnIndexOrThrow(Costs.COLUMN_MARKET_NAME));
+            Integer geoId = costCursor.getInt(costCursor.getColumnIndexOrThrow(Costs.COLUMN_GEO_ID));
+            Integer photoId = costCursor.getInt(costCursor.getColumnIndexOrThrow(Costs.COLUMN_PHOTO_ID));
+            tempCost = new Cost(costId, Category.valueOf(category), amount, date, marketName, currentAccount);
+            if (geoId != null) {
+                Geolocation geo = geoConnector.getGeoById(geoId);
+                tempCost.setGeo(geo);
+            }
+            if (photoId != null) {
+                tempCost.setPhotoAddress(accPhoConnector.getPhotoById(photoId));
+            }
+            costsByDate.add(0, tempCost);
+        }
+        costCursor.close();
+        db.close();
+        return costsByDate;
+    }
+
     public ArrayList<PieEntry> getTotalAmountsForCategoriesByDate(String currentDate) {
         ArrayList<PieEntry> pieEntries = new ArrayList<>();
         db = dbHelper.getReadableDatabase();
@@ -124,25 +155,60 @@ public class CostConnector {
         return pieEntries;
     }
 
+    public ArrayList<PieEntry> getTotalAmountsForCategoriesByDateAccount(String currentDate, String currentAccount) {
+        ArrayList<PieEntry> pieEntries = new ArrayList<>();
+        db = dbHelper.getReadableDatabase();
+        costCursor = db.rawQuery("select c." + Costs.COLUMN_CATEGORY + ", sum(c." + Costs.COLUMN_AMOUNT
+                + ") from " + Costs.TABLE_NAME + " as c inner join "
+                + Accounts.TABLE_NAME + "as a on c." + Costs.COLUMN_ACCOUNT_ID + "= a." + Accounts.COLUMN_ACCOUNT_ID
+                + " where c." + Costs.COLUMN_DATE + " like '" + currentDate + "%' and a." + Accounts.COLUMN_NUMBER + " like '" + currentAccount + "'"
+                + " group by " + Costs.COLUMN_CATEGORY, null);
+        costCursor.moveToFirst();
+        while (costCursor.moveToNext()) {
+            String category = costCursor.getString(costCursor.getColumnIndexOrThrow(Costs.COLUMN_CATEGORY));
+            float totalAmount = (float) costCursor.getDouble(costCursor.getColumnIndexOrThrow(Costs.COLUMN_CATEGORY) + 1);
+            pieEntries.add(new PieEntry(totalAmount, Category.valueOf(category).getCategoryName()));
+        }
+        costCursor.close();
+        db.close();
+        return pieEntries;
+    }
+
     public int[] getCategoriesColorsByDate(String currentDate) {
-        ArrayList<Integer> colorsList = new ArrayList<>();
         db = dbHelper.getReadableDatabase();
         costCursor = db.rawQuery("select distinct " + Costs.COLUMN_CATEGORY + " from " + Costs.TABLE_NAME + " where " + Costs.COLUMN_DATE + " like '" + currentDate + "%'", null);
+        int[] colors = new int[costCursor.getCount()];
+        int i = 0;
         costCursor.moveToFirst();
         while (costCursor.moveToNext()) {
             String category = costCursor.getString(0);
-            colorsList.add(Category.valueOf(category).getColorResource());
-        }
-        int[] colors = new int[colorsList.size()];
-        for (int i = 0; i < colors.length; i++) {
-            colors[i] = colorsList.get(i);
+            colors[i] = Category.valueOf(category).getColorResource();
+            i++;
         }
         costCursor.close();
         db.close();
         return colors;
     }
 
-    public List<YearMonth> getCostDates() {
+    public int[] getCategoriesColorsByDateAccount(String currentDate, String currentAccount) {
+        db = dbHelper.getReadableDatabase();
+        costCursor = db.rawQuery("select distinct c." + Costs.COLUMN_CATEGORY + " from " + Costs.TABLE_NAME + " as c inner join "
+                + Accounts.TABLE_NAME + "as a on c." + Costs.COLUMN_ACCOUNT_ID + "= a." + Accounts.COLUMN_ACCOUNT_ID
+                + " where c." + Costs.COLUMN_DATE + " like '" + currentDate + "%' and a." + Accounts.COLUMN_NUMBER + " like '" + currentAccount + "'", null);
+        int[] colors = new int[costCursor.getCount()];
+        int i = 0;
+        costCursor.moveToFirst();
+        while (costCursor.moveToNext()) {
+            String category = costCursor.getString(0);
+            colors[i] = Category.valueOf(category).getColorResource();
+            i++;
+        }
+        costCursor.close();
+        db.close();
+        return colors;
+    }
+
+    public List<YearMonth> getCostDates(int indicator) {
         List<YearMonth> dateList = new ArrayList<>();
         YearMonth ym;
         db = dbHelper.getReadableDatabase();
@@ -151,7 +217,10 @@ public class CostConnector {
         costCursor.moveToFirst();
         while (costCursor.moveToNext()) {
             ym = YearMonth.parse(costCursor.getString(0), dtf);
-            dateList.add(ym);
+            if (indicator == 0)
+                dateList.add(ym);
+            else
+                dateList.add(0, ym);
         }
         costCursor.close();
         db.close();
@@ -207,6 +276,13 @@ public class CostConnector {
             result = db.update(Costs.TABLE_NAME, cvEditGeoInCost, Costs.COLUMN_COST_ID + "=" + costId, null);
             db.close();
         }
+        return result;
+    }
+
+    public int deleteCost(int costId) {
+        db = dbHelper.getWritableDatabase();
+        int result = db.delete(Costs.TABLE_NAME, Costs.COLUMN_COST_ID + "=?", new String[]{String.valueOf(costId)});
+        db.close();
         return result;
     }
 }

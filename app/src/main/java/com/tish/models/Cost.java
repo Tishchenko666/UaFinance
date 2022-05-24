@@ -54,6 +54,15 @@ public class Cost {
         this.accountNumber = accountNumber;
     }
 
+    public Cost(int costId, Category category, double amount, String date, String marketName, String accountNumber) {
+        this.costId = costId;
+        this.category = category;
+        this.amount = amount;
+        this.date = date;
+        this.marketName = marketName;
+        this.accountNumber = accountNumber;
+    }
+
     public Cost(Category category, double amount, String date, String marketName, String accountNumber, Geolocation geo) {
         this.category = category;
         this.amount = amount;
