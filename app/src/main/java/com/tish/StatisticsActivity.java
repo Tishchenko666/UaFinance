@@ -6,6 +6,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
+import android.widget.ListView;
 import android.widget.Spinner;
 
 import androidx.annotation.NonNull;
@@ -13,17 +14,24 @@ import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 
+import com.tish.adapters.StatisticsListAdapter;
 import com.tish.db.connectors.AccPhoConnector;
 import com.tish.db.connectors.CostConnector;
+import com.tish.db.connectors.StatisticsConnector;
+import com.tish.interfaces.FragmentSendSettingDataListener;
+import com.tish.models.StatisticsItem;
 
 import java.time.YearMonth;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
-public class StatisticsActivity extends AppCompatActivity {
+public class StatisticsActivity extends AppCompatActivity implements FragmentSendSettingDataListener {
 
     CostConnector costConnector;
+    StatisticsConnector statisticsConnector;
+
+    StatisticsListAdapter statisticsAdapter;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -31,6 +39,7 @@ public class StatisticsActivity extends AppCompatActivity {
         setContentView(R.layout.activity_statistics);
 
         costConnector = new CostConnector(StatisticsActivity.this);
+        statisticsConnector = new StatisticsConnector(StatisticsActivity.this);
         initToolbar();
         initContent();
     }
@@ -59,6 +68,7 @@ public class StatisticsActivity extends AppCompatActivity {
             dateList.add(0, thisYearMonth);
         }
         List<String> spinnerDatesList = dateList.stream().map(YearMonth::toString).collect(Collectors.toList());
+        spinnerDatesList.add(0, "Всі дати");
         ArrayAdapter<String> adapter = new ArrayAdapter<String>(this, android.R.layout.simple_spinner_item, spinnerDatesList);
         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         simpleDateSpinner.setAdapter(adapter);
@@ -67,9 +77,29 @@ public class StatisticsActivity extends AppCompatActivity {
         getStatisticsButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                //create list
+                int selectedId = (int) simpleDateSpinner.getSelectedItemId();
+                if (selectedId == 0) {
+                    initList("");
+                } else
+                    initList(dateList.get(selectedId).toString());
             }
         });
+    }
+
+    private void initList(String currentDate) {
+        List<StatisticsItem> statisticsList;
+        if (currentDate.equals(""))
+            statisticsList = statisticsConnector.getCategoryStatistics();
+        else
+            statisticsList = statisticsConnector.getCategoryStatisticsByDate(currentDate);
+        statisticsAdapter = new StatisticsListAdapter(StatisticsActivity.this, statisticsList);
+        ListView statisticsListView = findViewById(R.id.lv_statistics);
+        statisticsListView.setAdapter(statisticsAdapter);
+    }
+
+    @Override
+    public void onSendSettingData(Bundle settings) {
+
     }
 
     @Override
@@ -99,4 +129,6 @@ public class StatisticsActivity extends AppCompatActivity {
         //describe opening other activity
         return true;
     }
+
+
 }
