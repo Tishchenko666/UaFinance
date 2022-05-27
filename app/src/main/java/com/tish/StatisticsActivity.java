@@ -15,15 +15,18 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 
 import com.tish.adapters.StatisticsListAdapter;
-import com.tish.db.connectors.AccPhoConnector;
+import com.tish.db.bases.Season;
 import com.tish.db.connectors.CostConnector;
 import com.tish.db.connectors.StatisticsConnector;
+import com.tish.dialogs.SetupStatisticsDialog;
 import com.tish.interfaces.FragmentSendSettingDataListener;
 import com.tish.models.StatisticsItem;
 
 import java.time.YearMonth;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 public class StatisticsActivity extends AppCompatActivity implements FragmentSendSettingDataListener {
@@ -33,6 +36,12 @@ public class StatisticsActivity extends AppCompatActivity implements FragmentSen
 
     StatisticsListAdapter statisticsAdapter;
 
+    ListView statisticsListView;
+    Spinner simpleDateSpinner;
+
+    int type;
+    Map<String, String> dateSettingsMap = new HashMap<>();
+
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -40,26 +49,23 @@ public class StatisticsActivity extends AppCompatActivity implements FragmentSen
 
         costConnector = new CostConnector(StatisticsActivity.this);
         statisticsConnector = new StatisticsConnector(StatisticsActivity.this);
+        type = R.id.rb_category;
+        dateSettingsMap.put("date", "isn`t");
         initToolbar();
         initContent();
     }
 
     private void initToolbar() {
-        Toolbar toolbar = findViewById(R.id.toolbar_view);
+        Toolbar toolbar = findViewById(R.id.no_spinner_toolbar_view);
         setSupportActionBar(toolbar);
-        getSupportActionBar().setDisplayShowTitleEnabled(false);
+        getSupportActionBar().setTitle("Статистика");
+        //getSupportActionBar().setDisplayShowTitleEnabled(false);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-        Spinner accountSpinner = findViewById(R.id.toolbar_spinner_account);
-        AccPhoConnector accPhoConnector = new AccPhoConnector(this);
-        List<String> accountList = accPhoConnector.getAccounts();
-        ArrayAdapter<String> accountAdapter = new ArrayAdapter<String>(this, android.R.layout.simple_spinner_item, accountList);
-        accountAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-        accountSpinner.setAdapter(accountAdapter);
-        accountSpinner.setSelection(0);
     }
 
     private void initContent() {
-        Spinner simpleDateSpinner = findViewById(R.id.spinner_statistics_date);
+        statisticsListView = findViewById(R.id.lv_statistics);
+        simpleDateSpinner = findViewById(R.id.spinner_statistics_date);
         Button getStatisticsButton = findViewById(R.id.button_get_statistics);
 
         YearMonth thisYearMonth = YearMonth.now();
@@ -77,29 +83,124 @@ public class StatisticsActivity extends AppCompatActivity implements FragmentSen
         getStatisticsButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                int selectedId = (int) simpleDateSpinner.getSelectedItemId();
-                if (selectedId == 0) {
-                    initList("");
-                } else
-                    initList(dateList.get(selectedId).toString());
+                if (simpleDateSpinner.isEnabled()) {
+                    int selectedId = (int) simpleDateSpinner.getSelectedItemId();
+                    switch (type) {
+                        case R.id.rb_category:
+                            if (selectedId == 0) {
+                                initList("", 'c');
+                            } else
+                                initList(dateList.get(selectedId).toString(), 'c');
+                            break;
+                        case R.id.rb_market:
+                            if (selectedId == 0) {
+                                initList("", 'm');
+                            } else
+                                initList(dateList.get(selectedId).toString(), 'm');
+                            break;
+                        case R.id.rb_geo:
+                            if (selectedId == 0) {
+                                initList("", 'g');
+                            } else
+                                initList(dateList.get(selectedId).toString(), 'g');
+                            break;
+                    }
+                } else {
+                    List<StatisticsItem> dateStatisticsList = new ArrayList<>();
+                    switch (type) {
+                        case R.id.rb_category:
+                            if (dateSettingsMap.get("dateType").equals("m")) {
+                                dateStatisticsList = statisticsConnector
+                                        .getCategoryMarketStatisticsByMonthSeason('c', 'm', dateSettingsMap.get("dateContent"));
+                            } else if (dateSettingsMap.get("dateType").equals("s")) {
+                                dateStatisticsList = statisticsConnector
+                                        .getCategoryMarketStatisticsByMonthSeason('c', 's',
+                                                Season.values()[Integer.parseInt(dateSettingsMap.get("dateContent"))].getNumbers());
+                            } else if (dateSettingsMap.get("dateType").equals("y")) {
+                                dateStatisticsList = statisticsConnector.getCategoryMarketStatisticsByYear('c');
+                            }
+                            break;
+                        case R.id.rb_market:
+                            if (dateSettingsMap.get("dateType").equals("m")) {
+                                dateStatisticsList = statisticsConnector
+                                        .getCategoryMarketStatisticsByMonthSeason('m', 'm', dateSettingsMap.get("dateContent"));
+                            } else if (dateSettingsMap.get("dateType").equals("s")) {
+                                dateStatisticsList = statisticsConnector
+                                        .getCategoryMarketStatisticsByMonthSeason('m', 's',
+                                                Season.values()[Integer.parseInt(dateSettingsMap.get("dateContent"))].getNumbers());
+                            } else if (dateSettingsMap.get("dateType").equals("y")) {
+                                dateStatisticsList = statisticsConnector.getCategoryMarketStatisticsByYear('m');
+                            }
+                            break;
+                        case R.id.rb_geo:
+                            if (dateSettingsMap.get("dateType").equals("m")) {
+                                dateStatisticsList = statisticsConnector.getGeoStatisticsByMonthSeason('m', dateSettingsMap.get("dateContent"));
+                            } else if (dateSettingsMap.get("dateType").equals("s")) {
+                                dateStatisticsList = statisticsConnector
+                                        .getGeoStatisticsByMonthSeason('s',
+                                                Season.values()[Integer.parseInt(dateSettingsMap.get("dateContent"))].getNumbers());
+                            } else if (dateSettingsMap.get("dateType").equals("y")) {
+                                dateStatisticsList = statisticsConnector.getGeoStatisticsByYear();
+                            }
+                            break;
+                    }
+                    if (dateSettingsMap.get("dateType").equals("y"))
+                        statisticsAdapter = new StatisticsListAdapter(StatisticsActivity.this, dateStatisticsList, true);
+                    else
+                        statisticsAdapter = new StatisticsListAdapter(StatisticsActivity.this, dateStatisticsList, dateSettingsMap.get("dateType"));
+                    statisticsListView.setAdapter(statisticsAdapter);
+                }
             }
         });
     }
 
-    private void initList(String currentDate) {
-        List<StatisticsItem> statisticsList;
-        if (currentDate.equals(""))
-            statisticsList = statisticsConnector.getCategoryStatistics();
-        else
-            statisticsList = statisticsConnector.getCategoryStatisticsByDate(currentDate);
-        statisticsAdapter = new StatisticsListAdapter(StatisticsActivity.this, statisticsList);
-        ListView statisticsListView = findViewById(R.id.lv_statistics);
+    private void initList(String currentDate, char type) {
+        List<StatisticsItem> statisticsList = new ArrayList<>();
+        switch (type) {
+            case 'c':
+            case 'm':
+                if (currentDate.equals(""))
+                    statisticsList = statisticsConnector.getCategoryMarketStatistics(type);
+                else
+                    statisticsList = statisticsConnector.getCategoryMarketStatisticsByDate(currentDate, type);
+                break;
+            case 'g':
+                if (currentDate.equals(""))
+                    statisticsList = statisticsConnector.getGeoStatistics();
+                else
+                    statisticsList = statisticsConnector.getGeoStatisticsByDate(currentDate);
+                break;
+        }
+
+        statisticsAdapter = new StatisticsListAdapter(StatisticsActivity.this, statisticsList, false);
         statisticsListView.setAdapter(statisticsAdapter);
     }
 
     @Override
     public void onSendSettingData(Bundle settings) {
+        if (settings.getInt("type") != type)
+            type = settings.getInt("type");
 
+        if (settings.getString("date").equals("isn`t")) {
+            if (!dateSettingsMap.get("date").equals("isn`t")) {
+                dateSettingsMap.clear();
+                dateSettingsMap.put("date", "isn`t");
+            }
+            simpleDateSpinner.setEnabled(true);
+        } else if (settings.getString("date").equals("is")) {
+            if (dateSettingsMap.get("date").equals("isn`t")) {
+                dateSettingsMap.replace("date", "isn`t", "is");
+            }
+            dateSettingsMap.put("dateType", settings.getString("dateType"));
+            if (settings.getString("dateType").equals("y")) {
+                dateSettingsMap.remove("dateContent");
+                dateSettingsMap.remove("period");
+            } else {
+                dateSettingsMap.put("dateContent", settings.getString("dateContent"));
+                dateSettingsMap.put("period", settings.getString("period"));
+            }
+            simpleDateSpinner.setEnabled(false);
+        }
     }
 
     @Override
@@ -112,7 +213,8 @@ public class StatisticsActivity extends AppCompatActivity implements FragmentSen
     public boolean onOptionsItemSelected(@NonNull MenuItem item) {
         switch (item.getItemId()) {
             case R.id.item_set_up_statistics:
-                //open setup_dialog
+                SetupStatisticsDialog setupStatisticsDialog = new SetupStatisticsDialog(StatisticsActivity.this);
+                setupStatisticsDialog.show(getSupportFragmentManager(), "ssd");
                 break;
             case R.id.pop_item_change_type:
                 //describe

@@ -105,8 +105,8 @@ public class SetupStatisticsDialog extends DialogFragment
                     @Override
                     public void onClick(View view) {
                         Bundle settings = new Bundle();
-                        String type = ((RadioButton) setupView.findViewById(typeRadioGroup.getCheckedRadioButtonId())).getText().toString();
-                        settings.putString("type", type);
+                        int type = typeRadioGroup.getCheckedRadioButtonId();
+                        settings.putInt("type", type);
                         String dateType;
                         String dateContent;
                         String periodAmount;
@@ -114,16 +114,22 @@ public class SetupStatisticsDialog extends DialogFragment
                             settings.putString("date", "is");
                             dateType = ((RadioButton) setupView.findViewById(dateTypeRadioGroup.getCheckedRadioButtonId())).getText().toString();
                             if (dateType.equals("Рік")) {
-                                dateContent = dateSettingSpinner.getSelectedItem().toString();
+                                //dateContent = dateSettingSpinner.getSelectedItem().toString();
                                 settings.putString("dateType", "y");
-                                settings.putString("dateContent", dateContent);
+                                //settings.putString("dateContent", dateContent);
                             } else {
-                                dateContent = dateSettingSpinner.getSelectedItem().toString();
                                 periodAmount = periodAmountEditText.getText().toString();
-                                if (dateContent.equals("Місяць"))
+                                if (dateType.equals("Місяць")) {
                                     settings.putString("dateType", "m");
-                                else
+                                    int dc = dateSettingSpinner.getSelectedItemPosition() + 1;
+                                    if (dc < 10)
+                                        dateContent = "0" + dc;
+                                    else
+                                        dateContent = String.valueOf(dc);
+                                } else {
                                     settings.putString("dateType", "s");
+                                    dateContent = String.valueOf(dateSettingSpinner.getSelectedItemPosition());
+                                }
                                 settings.putString("dateContent", dateContent);
                                 if (periodAmount.equals(""))
                                     settings.putString("period", "1");
@@ -151,13 +157,13 @@ public class SetupStatisticsDialog extends DialogFragment
             dateSeasonRadioButton.setEnabled(true);
             dateYearRadioButton.setEnabled(true);
             dateSettingSpinner.setVisibility(View.VISIBLE);
-            periodAmountLayout.setVisibility(View.VISIBLE);
+            //periodAmountLayout.setVisibility(View.VISIBLE);
         } else {
             dateMonthRadioButton.setEnabled(false);
             dateSeasonRadioButton.setEnabled(false);
             dateYearRadioButton.setEnabled(false);
             dateSettingSpinner.setVisibility(View.INVISIBLE);
-            periodAmountLayout.setVisibility(View.INVISIBLE);
+            //periodAmountLayout.setVisibility(View.INVISIBLE);
         }
     }
 
@@ -167,13 +173,15 @@ public class SetupStatisticsDialog extends DialogFragment
         switch (checkedId) {
             case R.id.rb_date_mouth:
                 fillSpinners("m");
+                //periodAmountLayout.setVisibility(View.VISIBLE);
                 break;
             case R.id.rb_date_season:
                 fillSpinners("s");
+                //periodAmountLayout.setVisibility(View.VISIBLE);
                 break;
             case R.id.rb_date_year:
-                fillSpinners("y");
-                periodAmountLayout.setVisibility(View.INVISIBLE);
+                dateSettingSpinner.setVisibility(View.INVISIBLE);
+                //periodAmountLayout.setVisibility(View.INVISIBLE);
                 break;
         }
     }

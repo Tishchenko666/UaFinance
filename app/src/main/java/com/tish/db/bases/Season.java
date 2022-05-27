@@ -1,15 +1,15 @@
 package com.tish.db.bases;
 
 public enum Season {
-    WINTER("Зима", new int[]{1, 2, 12}),
-    SPRING("Весна", new int[]{3, 4, 5}),
-    SUMMER("Літо", new int[]{6, 7, 8}),
-    AUTUMN("Осінь", new int[]{9, 10, 11});
+    WINTER("Зима", new String[]{"01", "02", "12"}),
+    SPRING("Весна", new String[]{"03", "04", "05"}),
+    SUMMER("Літо", new String[]{"06", "07", "08"}),
+    AUTUMN("Осінь", new String[]{"09", "10", "11"});
 
     String name;
-    int[] numbers;
+    String[] numbers;
 
-    Season(String name, int[] numbers) {
+    Season(String name, String[] numbers) {
         this.name = name;
         this.numbers = numbers;
     }
@@ -18,7 +18,11 @@ public enum Season {
         return name;
     }
 
-    public int[] getNumbers() {
+    public String[] getNumbers() {
         return numbers;
+    }
+
+    public String getNumberOfMonth(int index) {
+        return numbers[index];
     }
 }
