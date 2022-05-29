@@ -62,8 +62,19 @@ public class AccPhoConnector {
         db = dbHelper.getReadableDatabase();
         apCursor = db.rawQuery("select " + Accounts.COLUMN_ACCOUNT_ID + " from " + Accounts.TABLE_NAME + " where " + Accounts.COLUMN_NUMBER + "=" + number, null);
         apCursor.moveToFirst();
-        int accountId = apCursor.getInt(apCursor.getColumnIndexOrThrow(Accounts.COLUMN_ACCOUNT_ID));
+        int accountId = -1;
+        if (apCursor.getCount() > 0)
+            accountId = apCursor.getInt(apCursor.getColumnIndexOrThrow(Accounts.COLUMN_ACCOUNT_ID));
         apCursor.close();
+        db.close();
+        return accountId;
+    }
+
+    public long insertAccount(String number) {
+        ContentValues cvAccount = new ContentValues();
+        cvAccount.put(Accounts.COLUMN_NUMBER, number);
+        db = dbHelper.getWritableDatabase();
+        long accountId = db.insert(Accounts.TABLE_NAME, null, cvAccount);
         db.close();
         return accountId;
     }
@@ -77,4 +88,19 @@ public class AccPhoConnector {
         return photoId;
     }
 
+    public long updateAccount(int accountId, String newNumber) {
+        ContentValues cvAccount = new ContentValues();
+        cvAccount.put(Accounts.COLUMN_NUMBER, newNumber);
+        db = dbHelper.getWritableDatabase();
+        long result = db.update(Accounts.TABLE_NAME, cvAccount, Accounts.COLUMN_ACCOUNT_ID + "=" + accountId, null);
+        db.close();
+        return result;
+    }
+
+    public int deleteAccount(String number) {
+        db = dbHelper.getWritableDatabase();
+        int result = db.delete(Accounts.TABLE_NAME, Accounts.COLUMN_NUMBER + "=" + number, null);
+        db.close();
+        return result;
+    }
 }

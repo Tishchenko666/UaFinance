@@ -8,6 +8,7 @@ import androidx.core.view.GravityCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.fragment.app.FragmentTransaction;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -26,7 +27,7 @@ import java.util.List;
 
 public class MainActivity extends AppCompatActivity implements FragmentSendDataListener {
 
-    FragmentTransaction fragmentTransaction;
+    private FragmentTransaction fragmentTransaction;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -78,6 +79,32 @@ public class MainActivity extends AppCompatActivity implements FragmentSendDataL
         navigationView.setNavigationItemSelectedListener(new NavigationView.OnNavigationItemSelectedListener() {
             @Override
             public boolean onNavigationItemSelected(@NonNull MenuItem item) {
+                Intent openIntent = new Intent();
+                switch (item.getItemId()) {
+                    case R.id.nav_profile:
+
+                        break;
+                    case R.id.nav_account_manager:
+
+                        break;
+                    case R.id.nav_list:
+
+                        break;
+                    case R.id.nav_map:
+
+                        break;
+                    case R.id.nav_statistic:
+                        openIntent.setClass(MainActivity.this, StatisticsActivity.class);
+                        break;
+                    case R.id.nav_settings:
+
+                        break;
+                    default:
+                        Toast.makeText(MainActivity.this, "Nothing selected", Toast.LENGTH_LONG).show();
+                }
+                navigationView.setCheckedItem(item);
+                startActivity(openIntent);
+                drawer.closeDrawer(GravityCompat.START);
                 return true;
             }
         });

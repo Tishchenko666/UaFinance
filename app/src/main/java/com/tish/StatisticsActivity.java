@@ -1,5 +1,6 @@
 package com.tish;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -228,7 +229,9 @@ public class StatisticsActivity extends AppCompatActivity implements FragmentSen
 
     @Override
     public boolean onSupportNavigateUp() {
-        //describe opening other activity
+        Intent backIntent = new Intent(StatisticsActivity.this, MainActivity.class);
+        startActivity(backIntent);
+        finish();
         return true;
     }
 
