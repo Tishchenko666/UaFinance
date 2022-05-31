@@ -19,6 +19,7 @@ import android.widget.Spinner;
 import android.widget.Toast;
 
 import com.google.android.material.navigation.NavigationView;
+import com.tish.db.bases.PrefManager;
 import com.tish.db.connectors.AccPhoConnector;
 import com.tish.dialogs.AddCostDialog;
 import com.tish.interfaces.FragmentSendDataListener;
@@ -28,6 +29,8 @@ import java.util.List;
 public class MainActivity extends AppCompatActivity implements FragmentSendDataListener {
 
     private FragmentTransaction fragmentTransaction;
+
+    Spinner spinner;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -39,7 +42,7 @@ public class MainActivity extends AppCompatActivity implements FragmentSendDataL
     private void initView() {
         Toolbar toolbar = findViewById(R.id.toolbar_view);
         setSupportActionBar(toolbar);
-        Spinner spinner = findViewById(R.id.toolbar_spinner_account);
+        spinner = findViewById(R.id.toolbar_spinner_account);
         AccPhoConnector accPhoConnector = new AccPhoConnector(this);
         List<String> accountList = accPhoConnector.getAccounts();
         ArrayAdapter<String> adapter = new ArrayAdapter<String>(this, android.R.layout.simple_spinner_item, accountList);
@@ -51,8 +54,10 @@ public class MainActivity extends AppCompatActivity implements FragmentSendDataL
             public void onItemSelected(AdapterView<?> adapterView, View view, int position, long l) {
                 Bundle ab = new Bundle();
                 ab.putString("account", accountList.get(position));
-                CostsListFragment clf = null;
+                CostsListFragment clf;
                 clf = (CostsListFragment) getSupportFragmentManager().findFragmentByTag("TAG_COSTS_FRAGMENT");
+                clf.getArguments().clear();
+                clf.setArguments(ab);
                 fragmentTransaction = getSupportFragmentManager().beginTransaction();
                 fragmentTransaction.detach(clf).attach(clf).commit();
             }
@@ -62,13 +67,15 @@ public class MainActivity extends AppCompatActivity implements FragmentSendDataL
 
             }
         });
-        CostsListFragment costsListFragment = new CostsListFragment();
-        Bundle accountBundle = new Bundle();
-        accountBundle.putString("account", spinner.getSelectedItem().toString());
-        costsListFragment.setArguments(accountBundle);
-        fragmentTransaction = getSupportFragmentManager().beginTransaction();
-        fragmentTransaction.add(R.id.main_container, costsListFragment, "TAG_COSTS_FRAGMENT");
-        fragmentTransaction.commit();
+
+        PrefManager prefManager = new PrefManager(getApplicationContext(), "first");
+        if (prefManager.isFirstLaunch()) {
+            prefManager.setFirstLaunch(false);
+            prefManager.setFirstDate();
+            //create dialog for the first time
+        }
+        initFragment();
+
         getSupportActionBar().setDisplayShowTitleEnabled(false);
         DrawerLayout drawer = findViewById(R.id.drawer_layout);
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
@@ -82,10 +89,12 @@ public class MainActivity extends AppCompatActivity implements FragmentSendDataL
                 Intent openIntent = new Intent();
                 switch (item.getItemId()) {
                     case R.id.nav_profile:
-
+                        openIntent.setClass(MainActivity.this, UserActivity.class);
+                        openIntent.putExtra("fragment", 'p');
                         break;
                     case R.id.nav_account_manager:
-
+                        openIntent.setClass(MainActivity.this, UserActivity.class);
+                        openIntent.putExtra("fragment", 'a');
                         break;
                     case R.id.nav_list:
 
@@ -102,20 +111,29 @@ public class MainActivity extends AppCompatActivity implements FragmentSendDataL
                     default:
                         Toast.makeText(MainActivity.this, "Nothing selected", Toast.LENGTH_LONG).show();
                 }
-                navigationView.setCheckedItem(item);
+                //navigationView.setCheckedItem(item);
                 startActivity(openIntent);
                 drawer.closeDrawer(GravityCompat.START);
                 return true;
             }
         });
 
+    }
 
+    private void initFragment() {
+        CostsListFragment costsListFragment = new CostsListFragment();
+        Bundle accountBundle = new Bundle();
+        accountBundle.putString("account", spinner.getSelectedItem().toString());
+        costsListFragment.setArguments(accountBundle);
+        fragmentTransaction = getSupportFragmentManager().beginTransaction();
+        fragmentTransaction.add(R.id.main_container, costsListFragment, "TAG_COSTS_FRAGMENT");
+        fragmentTransaction.commit();
     }
 
     @Override
-    public void onSendData(long data) {
+    public void onSendData(long data, String fragmentTag) {
         if (data > 0) {
-            CostsListFragment clf = null;
+            CostsListFragment clf;
             clf = (CostsListFragment) getSupportFragmentManager().findFragmentByTag("TAG_COSTS_FRAGMENT");
             fragmentTransaction = getSupportFragmentManager().beginTransaction();
             fragmentTransaction.detach(clf).attach(clf).commit();

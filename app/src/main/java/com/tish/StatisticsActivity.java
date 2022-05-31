@@ -16,6 +16,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 
 import com.tish.adapters.StatisticsListAdapter;
+import com.tish.db.bases.PrefManager;
 import com.tish.db.bases.Season;
 import com.tish.db.connectors.CostConnector;
 import com.tish.db.connectors.StatisticsConnector;
@@ -40,6 +41,7 @@ public class StatisticsActivity extends AppCompatActivity implements FragmentSen
     ListView statisticsListView;
     Spinner simpleDateSpinner;
 
+    PrefManager prefManager;
     int type;
     Map<String, String> dateSettingsMap = new HashMap<>();
 
@@ -50,6 +52,8 @@ public class StatisticsActivity extends AppCompatActivity implements FragmentSen
 
         costConnector = new CostConnector(StatisticsActivity.this);
         statisticsConnector = new StatisticsConnector(StatisticsActivity.this);
+        prefManager = new PrefManager(getApplicationContext(), "statSettings");
+
         type = R.id.rb_category;
         dateSettingsMap.put("date", "isn`t");
         initToolbar();
@@ -145,10 +149,12 @@ public class StatisticsActivity extends AppCompatActivity implements FragmentSen
                             }
                             break;
                     }
+
                     if (dateSettingsMap.get("dateType").equals("y"))
                         statisticsAdapter = new StatisticsListAdapter(StatisticsActivity.this, dateStatisticsList, true);
                     else
                         statisticsAdapter = new StatisticsListAdapter(StatisticsActivity.this, dateStatisticsList, dateSettingsMap.get("dateType"));
+
                     statisticsListView.setAdapter(statisticsAdapter);
                 }
             }
