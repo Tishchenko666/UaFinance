@@ -201,7 +201,7 @@ public class AddCostDialog extends DialogFragment implements CompoundButton.OnCh
                             //describe photo adding
                             if (canBeSaved) {
                                 long insertResult = costConnector.insertNewCost(newCost);
-                                sendInsertResult.onSendData(insertResult);
+                                sendInsertResult.onSendData(insertResult, "TAG_COSTS_FRAGMENT");
                                 thisDialog.dismiss();
                             }
                         }

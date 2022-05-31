@@ -6,6 +6,7 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.os.Bundle;
 import android.view.View;
+import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
 
@@ -67,26 +68,32 @@ public class AccountDialog extends DialogFragment {
         thisDialog.setOnShowListener(new DialogInterface.OnShowListener() {
             @Override
             public void onShow(DialogInterface dialogInterface) {
-                String number = accountEditText.getText().toString();
-                if (number.equals("")) {
-                    errorTextView.setText("Номер рахунку необхідно вказати");
-                    errorTextView.setVisibility(View.VISIBLE);
-                } else if (!number.matches("\\d+")) {
-                    errorTextView.setText("Номер рахунку має складатися з цифр");
-                    errorTextView.setVisibility(View.VISIBLE);
-                } else {
-                    errorTextView.setVisibility(View.INVISIBLE);
-                    long result = -1;
-                    if (accountConnector.getAccountIdByNumber(number) <= 0) {
-                        if (getTag().equals("ead"))
-                            result = accountConnector.updateAccount(accountConnector.getAccountIdByNumber(oldNumber), number);
-                        else
-                            result = accountConnector.insertAccount(number);
-                    }
+                Button saveButton = thisDialog.getButton(DialogInterface.BUTTON_POSITIVE);
+                saveButton.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+                        String number = accountEditText.getText().toString();
+                        if (number.equals("")) {
+                            errorTextView.setText("Номер рахунку необхідно вказати");
+                            errorTextView.setVisibility(View.VISIBLE);
+                        } else if (!number.matches("\\d+")) {
+                            errorTextView.setText("Номер рахунку має складатися з цифр");
+                            errorTextView.setVisibility(View.VISIBLE);
+                        } else {
+                            errorTextView.setVisibility(View.INVISIBLE);
+                            long result = -1;
+                            if (accountConnector.getAccountIdByNumber(number) <= 0) {
+                                if (getTag().equals("ead"))
+                                    result = accountConnector.updateAccount(accountConnector.getAccountIdByNumber(oldNumber), number);
+                                else
+                                    result = accountConnector.insertAccount(number);
+                            }
 
-                    sendResult.onSendData(result);
-                    thisDialog.dismiss();
-                }
+                            sendResult.onSendData(result, "TAG_AM_FRAGMENT");
+                            thisDialog.dismiss();
+                        }
+                    }
+                });
             }
         });
         return thisDialog;

@@ -22,6 +22,7 @@ import androidx.annotation.Nullable;
 import androidx.fragment.app.DialogFragment;
 
 import com.tish.R;
+import com.tish.db.bases.PrefManager;
 import com.tish.db.bases.Season;
 import com.tish.db.bases.UkrainianMonth;
 import com.tish.db.connectors.StatisticsConnector;
@@ -54,10 +55,12 @@ public class SetupStatisticsDialog extends DialogFragment
 
     StatisticsConnector statisticsConnector;
     Context context;
+    PrefManager prefManager;
 
     public SetupStatisticsDialog(Context context) {
         this.context = context;
         statisticsConnector = new StatisticsConnector(context);
+        prefManager = new PrefManager(context, "statSettings");
     }
 
     @Override
@@ -86,9 +89,23 @@ public class SetupStatisticsDialog extends DialogFragment
         dateSeasonRadioButton = setupView.findViewById(R.id.rb_date_season);
         dateYearRadioButton = setupView.findViewById(R.id.rb_date_year);
         dateSettingSpinner = setupView.findViewById(R.id.spinner_date_setting);
+
+        if (prefManager.hasSettings()) {
+            typeRadioGroup.check(prefManager.getType());
+            setupDateCheckBox.setChecked(prefManager.isDateSetupChecked());
+            if (prefManager.isDateSetupChecked()) {
+                dateTypeRadioGroup.check(prefManager.getDateType());
+                if (prefManager.getDateType() != R.id.rb_date_year) {
+                    dateSettingSpinner.setSelection(prefManager.getDateSetup());
+                }
+            }
+        } else
+            prefManager.setHasSettings(false);
+
         periodAmountLayout = setupView.findViewById(R.id.ll_period_amount);
         periodAmountEditText = setupView.findViewById(R.id.et_period_amount);
         periodAmountEditText.setText("1");
+
         builder.setPositiveButton("Зберегти", null);
         builder.setNegativeButton("Відмінити", new DialogInterface.OnClickListener() {
             @Override
@@ -104,15 +121,19 @@ public class SetupStatisticsDialog extends DialogFragment
                 saveButton.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View view) {
+                        prefManager.setHasSettings(true);
                         Bundle settings = new Bundle();
                         int type = typeRadioGroup.getCheckedRadioButtonId();
                         settings.putInt("type", type);
+                        prefManager.setType(type);
                         String dateType;
                         String dateContent;
                         String periodAmount;
                         if (setupDateCheckBox.isChecked()) {
                             settings.putString("date", "is");
+                            prefManager.setDateSetupChecked(true);
                             dateType = ((RadioButton) setupView.findViewById(dateTypeRadioGroup.getCheckedRadioButtonId())).getText().toString();
+                            prefManager.setDateType(dateTypeRadioGroup.getCheckedRadioButtonId());
                             if (dateType.equals("Рік")) {
                                 //dateContent = dateSettingSpinner.getSelectedItem().toString();
                                 settings.putString("dateType", "y");
@@ -131,6 +152,7 @@ public class SetupStatisticsDialog extends DialogFragment
                                     dateContent = String.valueOf(dateSettingSpinner.getSelectedItemPosition());
                                 }
                                 settings.putString("dateContent", dateContent);
+                                prefManager.setDateSetup(dateSettingSpinner.getSelectedItemPosition());
                                 if (periodAmount.equals(""))
                                     settings.putString("period", "1");
                                 else
@@ -138,6 +160,7 @@ public class SetupStatisticsDialog extends DialogFragment
                             }
                         } else {
                             settings.putString("date", "isn`t");
+                            prefManager.setDateSetupChecked(false);
                         }
 
                         sendSettings.onSendSettingData(settings);
@@ -173,10 +196,12 @@ public class SetupStatisticsDialog extends DialogFragment
         switch (checkedId) {
             case R.id.rb_date_mouth:
                 fillSpinners("m");
+                dateSettingSpinner.setVisibility(View.VISIBLE);
                 //periodAmountLayout.setVisibility(View.VISIBLE);
                 break;
             case R.id.rb_date_season:
                 fillSpinners("s");
+                dateSettingSpinner.setVisibility(View.VISIBLE);
                 //periodAmountLayout.setVisibility(View.VISIBLE);
                 break;
             case R.id.rb_date_year:

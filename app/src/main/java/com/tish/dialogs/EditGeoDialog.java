@@ -140,7 +140,7 @@ public class EditGeoDialog extends DialogFragment {
 
                             if (canBeSaved) {
                                 int updateResult = costConnector.updateGeoInCost(editGeo, costId);
-                                sendUpdateResult.onSendData(updateResult);
+                                sendUpdateResult.onSendData(updateResult, "TAG_COSTS_FRAGMENT");
                                 thisDialog.dismiss();
                             }
                         }

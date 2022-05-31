@@ -139,7 +139,7 @@ public class EditCostDialog extends DialogFragment {
                             }
                             //describe photo adding
                             long updateResult = costConnector.updateCost(editCost, updateAccount);
-                            sendUpdateResult.onSendData(updateResult);
+                            sendUpdateResult.onSendData(updateResult, "TAG_COSTS_FRAGMENT");
                             thisDialog.dismiss();
                         }
                     }
