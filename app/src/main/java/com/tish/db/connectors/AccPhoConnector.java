@@ -58,6 +58,16 @@ public class AccPhoConnector {
         return address;
     }
 
+    public int getPhotoId(String address) {
+        db = dbHelper.getReadableDatabase();
+        apCursor = db.rawQuery("select " + Photos.COLUMN_PHOTO_ID + " from " + Photos.TABLE_NAME + " where " + Photos.COLUMN_LINK + "=" + address, null);
+        apCursor.moveToFirst();
+        int photoId = apCursor.getInt(apCursor.getColumnIndexOrThrow(Photos.COLUMN_PHOTO_ID));
+        apCursor.close();
+        db.close();
+        return photoId;
+    }
+
     public int getAccountIdByNumber(String number) {
         db = dbHelper.getReadableDatabase();
         apCursor = db.rawQuery("select " + Accounts.COLUMN_ACCOUNT_ID + " from " + Accounts.TABLE_NAME + " where " + Accounts.COLUMN_NUMBER + "=" + number, null);
@@ -100,6 +110,13 @@ public class AccPhoConnector {
     public int deleteAccount(String number) {
         db = dbHelper.getWritableDatabase();
         int result = db.delete(Accounts.TABLE_NAME, Accounts.COLUMN_NUMBER + "=" + number, null);
+        db.close();
+        return result;
+    }
+
+    public int deletePhoto(int photoId) {
+        db = dbHelper.getWritableDatabase();
+        int result = db.delete(Photos.TABLE_NAME, Photos.COLUMN_PHOTO_ID + "=" + photoId, null);
         db.close();
         return result;
     }

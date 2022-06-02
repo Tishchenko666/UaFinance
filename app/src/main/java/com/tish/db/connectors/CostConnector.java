@@ -279,10 +279,34 @@ public class CostConnector {
         return result;
     }
 
+    public int updatePhotoInCost(String address, int costId) {
+        int photoId = accPhoConnector.insertPhotoToGetPhotoId(address);
+        ContentValues cvPhoto = new ContentValues();
+        cvPhoto.put(Costs.COLUMN_PHOTO_ID, photoId);
+        db = dbHelper.getWritableDatabase();
+        int result = db.update(Costs.TABLE_NAME, cvPhoto, Costs.COLUMN_COST_ID + "=" + costId, null);
+        db.close();
+        return result;
+    }
+
     public int deleteCost(int costId) {
         db = dbHelper.getWritableDatabase();
         int result = db.delete(Costs.TABLE_NAME, Costs.COLUMN_COST_ID + "=?", new String[]{String.valueOf(costId)});
         db.close();
+        return result;
+    }
+
+    public int deletePhotoId(String photoAddress, int costId) {
+        int photoId = accPhoConnector.getPhotoId(photoAddress);
+        int deleteResult = accPhoConnector.deletePhoto(photoId);
+        int result = -1;
+        if (deleteResult > 0) {
+            ContentValues cvPhotoId = new ContentValues();
+            cvPhotoId.put(Costs.COLUMN_PHOTO_ID, -1);
+            db = dbHelper.getWritableDatabase();
+            result = db.update(Costs.TABLE_NAME, cvPhotoId, Costs.COLUMN_COST_ID + "=?", new String[]{String.valueOf(costId)});
+            db.close();
+        }
         return result;
     }
 }

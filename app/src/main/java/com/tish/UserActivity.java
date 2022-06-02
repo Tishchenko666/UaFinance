@@ -62,7 +62,7 @@ public class UserActivity extends AppCompatActivity implements FragmentSendDataL
                         fragmentTransaction.commit();
                         break;
                     case R.id.nav_list:
-
+                        openIntent.setClass(UserActivity.this, MainActivity.class);
                         break;
                     case R.id.nav_map:
 
@@ -76,7 +76,6 @@ public class UserActivity extends AppCompatActivity implements FragmentSendDataL
                     default:
                         Toast.makeText(UserActivity.this, "Nothing selected", Toast.LENGTH_LONG).show();
                 }
-                //navigationView.setCheckedItem(item);
                 startActivity(openIntent);
                 drawer.closeDrawer(GravityCompat.START);
                 return true;

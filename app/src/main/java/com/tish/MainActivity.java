@@ -2,14 +2,19 @@ package com.tish;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.ActionBarDrawerToggle;
+
+import android.app.AlertDialog;
+
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.core.view.GravityCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.fragment.app.FragmentTransaction;
 
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
+import android.text.Html;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -72,7 +77,7 @@ public class MainActivity extends AppCompatActivity implements FragmentSendDataL
         if (prefManager.isFirstLaunch()) {
             prefManager.setFirstLaunch(false);
             prefManager.setFirstDate();
-            //create dialog for the first time
+            createWelcomeMessage();
         }
         initFragment();
 
@@ -111,7 +116,6 @@ public class MainActivity extends AppCompatActivity implements FragmentSendDataL
                     default:
                         Toast.makeText(MainActivity.this, "Nothing selected", Toast.LENGTH_LONG).show();
                 }
-                //navigationView.setCheckedItem(item);
                 startActivity(openIntent);
                 drawer.closeDrawer(GravityCompat.START);
                 return true;
@@ -134,7 +138,7 @@ public class MainActivity extends AppCompatActivity implements FragmentSendDataL
     public void onSendData(long data, String fragmentTag) {
         if (data > 0) {
             CostsListFragment clf;
-            clf = (CostsListFragment) getSupportFragmentManager().findFragmentByTag("TAG_COSTS_FRAGMENT");
+            clf = (CostsListFragment) getSupportFragmentManager().findFragmentByTag(fragmentTag);
             fragmentTransaction = getSupportFragmentManager().beginTransaction();
             fragmentTransaction.detach(clf).attach(clf).commit();
         } else if (data == -1)
@@ -168,6 +172,21 @@ public class MainActivity extends AppCompatActivity implements FragmentSendDataL
         } else {
             super.onBackPressed();
         }
+    }
+
+    private void createWelcomeMessage() {
+        AlertDialog welcomeDialog = new AlertDialog.Builder(MainActivity.this)
+                .setTitle(R.string.welcome_title)
+                .setMessage(Html.fromHtml(getString(R.string.welcome_message), Html.FROM_HTML_MODE_LEGACY))
+                .setPositiveButton("ОК", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialogInterface, int i) {
+                        dialogInterface.dismiss();
+                    }
+                })
+                .create();
+        welcomeDialog.getWindow().setBackgroundDrawableResource(R.drawable.background_nav_header);
+        welcomeDialog.show();
     }
 
 }

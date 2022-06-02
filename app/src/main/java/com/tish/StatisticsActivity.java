@@ -223,11 +223,8 @@ public class StatisticsActivity extends AppCompatActivity implements FragmentSen
                 SetupStatisticsDialog setupStatisticsDialog = new SetupStatisticsDialog(StatisticsActivity.this);
                 setupStatisticsDialog.show(getSupportFragmentManager(), "ssd");
                 break;
-            case R.id.pop_item_change_type:
+            case R.id.item_change_type_statistics:
                 //describe
-                break;
-            case R.id.pop_item_export:
-                //describe last
                 break;
         }
         return true;

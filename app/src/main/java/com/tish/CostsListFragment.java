@@ -86,7 +86,7 @@ public class CostsListFragment extends Fragment {
         forwardButton = view.findViewById(R.id.ib_forward);
         ts = view.findViewById(R.id.ts_costs);
         chart = view.findViewById(R.id.chart);
-
+        
         costConnector = new CostConnector(getContext());
 
         initDates();

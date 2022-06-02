@@ -4,25 +4,35 @@ import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.content.Intent;
+import android.graphics.Bitmap;
 import android.location.Address;
 import android.location.Geocoder;
 import android.os.Bundle;
+import android.provider.MediaStore;
 import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.CompoundButton;
 import android.widget.EditText;
+import android.widget.ImageButton;
 import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.activity.result.ActivityResult;
+import androidx.activity.result.ActivityResultCallback;
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.DialogFragment;
 
+import com.tish.MainActivity;
 import com.tish.R;
 import com.tish.db.bases.Category;
+import com.tish.db.bases.PhotoManager;
 import com.tish.db.connectors.AccPhoConnector;
 import com.tish.db.connectors.CostConnector;
 import com.tish.models.Cost;
@@ -39,7 +49,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 
-public class AddCostDialog extends DialogFragment implements CompoundButton.OnCheckedChangeListener {
+public class AddCostDialog extends DialogFragment
+        implements CompoundButton.OnCheckedChangeListener, View.OnClickListener {
 
     private FragmentSendDataListener sendInsertResult;
 
@@ -54,9 +65,12 @@ public class AddCostDialog extends DialogFragment implements CompoundButton.OnCh
     Spinner categorySpinner;
     Spinner accountSpinner;
 
+    ImageButton makePhotoImageButton;
+
     TextView errorTextView;
 
     CostConnector costConnector;
+    PhotoManager photoManager;
 
     String dateRegexDayYear;
     String dateRegexYearDay;
@@ -64,10 +78,12 @@ public class AddCostDialog extends DialogFragment implements CompoundButton.OnCh
     Context context;
 
     boolean canBeSaved = true;
+    String photoAddress;
 
     public AddCostDialog(Context context) {
         this.context = context;
         costConnector = new CostConnector(context);
+        photoManager = new PhotoManager(context);
         dateRegexDayYear = "[0-3][0-9][-./][0-1][0-9][-./][0-9]{4}";
         dateRegexYearDay = "[0-9]{4}[-./][0-1][0-9][-./][0-3][0-9]";
     }
@@ -100,6 +116,8 @@ public class AddCostDialog extends DialogFragment implements CompoundButton.OnCh
         categorySpinner = addCostView.findViewById(R.id.spinner_cost_category);
         accountSpinner = addCostView.findViewById(R.id.spinner_cost_account);
         fillSpinners();
+        makePhotoImageButton = addCostView.findViewById(R.id.ib_make_photo);
+        makePhotoImageButton.setOnClickListener(this);
         errorTextView = addCostView.findViewById(R.id.tv_cost_error);
         builder.setView(addCostView);
         builder.setPositiveButton("Зберегти", null);
@@ -199,6 +217,7 @@ public class AddCostDialog extends DialogFragment implements CompoundButton.OnCh
                                 canBeSaved = true;
                             }
                             //describe photo adding
+                            newCost.setPhotoAddress(photoAddress);
                             if (canBeSaved) {
                                 long insertResult = costConnector.insertNewCost(newCost);
                                 sendInsertResult.onSendData(insertResult, "TAG_COSTS_FRAGMENT");
@@ -241,4 +260,30 @@ public class AddCostDialog extends DialogFragment implements CompoundButton.OnCh
             addressEditText.setVisibility(View.INVISIBLE);
         }
     }
+
+    @Override
+    public void onClick(View view) {
+        Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+        myCameraRegister.launch(intent);
+    }
+
+    ActivityResultLauncher<Intent> myCameraRegister = registerForActivityResult(
+            new ActivityResultContracts.StartActivityForResult(),
+            new ActivityResultCallback<ActivityResult>() {
+                @Override
+                public void onActivityResult(ActivityResult result) {
+                    if (result.getResultCode() == MainActivity.RESULT_OK) {
+                        Intent data = result.getData();
+                        if (data != null) {
+                            if (data.hasExtra("data")) {
+                                Bitmap photoBitmap = data.getParcelableExtra("data");
+                                photoAddress = photoManager.savePhoto(photoBitmap);
+                                makePhotoImageButton.setEnabled(false);
+                            }
+                        } else {
+                            Toast.makeText(getContext(), "Problem", Toast.LENGTH_SHORT).show();
+                        }
+                    }
+                }
+            });
 }

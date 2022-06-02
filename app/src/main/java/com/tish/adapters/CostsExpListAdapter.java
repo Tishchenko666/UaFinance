@@ -1,10 +1,8 @@
 package com.tish.adapters;
 
 import android.content.Context;
-import android.content.res.Resources;
 import android.graphics.drawable.ShapeDrawable;
 import android.graphics.drawable.shapes.OvalShape;
-import android.net.Uri;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -13,12 +11,11 @@ import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.tish.MainActivity;
 import com.tish.R;
+import com.tish.dialogs.GetPhotoDialog;
 import com.tish.models.Cost;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -106,14 +103,17 @@ public class CostsExpListAdapter extends BaseExpandableListAdapter {
             @Override
             public void onClick(View view) {
                 if (cost.isPhotoExists()) {
-                    //open image
+                    GetPhotoDialog showPhotoDialog = new GetPhotoDialog(context, cost.getCostId(), cost.getPhotoAddress());
+                    showPhotoDialog.show(((MainActivity) context).getSupportFragmentManager(), "spd");
                 } else {
-                    //make photo
+                    GetPhotoDialog addPhotoDialog = new GetPhotoDialog(context, cost.getCostId());
+                    addPhotoDialog.show(((MainActivity) context).getSupportFragmentManager(), "apd");
                 }
             }
         });
         return view;
     }
+
 
     @Override
     public int getGroupCount() {
