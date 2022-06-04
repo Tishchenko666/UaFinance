@@ -11,12 +11,15 @@ import com.tish.db.bases.Category;
 import com.tish.db.bases.DBContract.*;
 import com.tish.db.bases.DBHelper;
 import com.tish.models.Cost;
+import com.tish.models.GeoPair;
 import com.tish.models.Geolocation;
 
 import java.time.YearMonth;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class CostConnector {
 
@@ -73,6 +76,27 @@ public class CostConnector {
         costCursor.close();
         db.close();
         return costs;
+    }
+
+    public List<Cost> getCostsByGeoId(int geoId) {
+        List<Cost> costsByGeo = new ArrayList<>();
+        db = dbHelper.getReadableDatabase();
+        costCursor = db.rawQuery("select " + Costs.COLUMN_CATEGORY + ", " + Costs.COLUMN_AMOUNT + ", "
+                + Costs.COLUMN_DATE + ", " + Costs.COLUMN_MARKET_NAME +
+                " from " + Costs.TABLE_NAME +
+                " where " + Costs.COLUMN_GEO_ID + " = " + geoId +
+                " order by " + Costs.COLUMN_DATE + " desc", null);
+        costCursor.moveToFirst();
+        while (costCursor.moveToNext()) {
+            String category = costCursor.getString(costCursor.getColumnIndexOrThrow(Costs.COLUMN_CATEGORY));
+            double amount = costCursor.getDouble(costCursor.getColumnIndexOrThrow(Costs.COLUMN_AMOUNT));
+            String date = costCursor.getString(costCursor.getColumnIndexOrThrow(Costs.COLUMN_DATE));
+            String marketName = costCursor.getString(costCursor.getColumnIndexOrThrow(Costs.COLUMN_MARKET_NAME));
+            costsByGeo.add(new Cost(Category.valueOf(category), amount, date, marketName));
+        }
+        costCursor.close();
+        db.close();
+        return costsByGeo;
     }
 
     public ArrayList<Cost> getCostsByDate(String currentDate) {
@@ -227,6 +251,25 @@ public class CostConnector {
         return dateList;
     }
 
+    public HashMap<Integer, GeoPair> getGeoPairs() {
+        HashMap<Integer, GeoPair> geoPairs = new HashMap<>();
+        db = dbHelper.getReadableDatabase();
+        costCursor = db.rawQuery("select " + Costs.COLUMN_GEO_ID + ", count(*), sum(" + Costs.COLUMN_AMOUNT
+                + ") from " + Costs.TABLE_NAME
+                + " group by " + Costs.COLUMN_GEO_ID, null);
+        costCursor.moveToFirst();
+        int column = costCursor.getColumnIndexOrThrow(Costs.COLUMN_GEO_ID);
+        while (costCursor.moveToNext()) {
+            int geoId = costCursor.getInt(column);
+            int number = costCursor.getInt(column + 1);
+            int amount = costCursor.getInt(column + 2);
+            geoPairs.put(geoId, new GeoPair(number, amount));
+        }
+        costCursor.close();
+        db.close();
+        return geoPairs;
+    }
+
     public long insertNewCost(Cost cost) {
         ContentValues cvNewCost = new ContentValues();
         cvNewCost.put(Costs.COLUMN_CATEGORY, cost.getCategory().toString());
@@ -296,17 +339,20 @@ public class CostConnector {
         return result;
     }
 
-    public int deletePhotoId(String photoAddress, int costId) {
+    public int deletePhotoIdInCost(String photoAddress, int costId) {
         int photoId = accPhoConnector.getPhotoId(photoAddress);
         int deleteResult = accPhoConnector.deletePhoto(photoId);
         int result = -1;
         if (deleteResult > 0) {
             ContentValues cvPhotoId = new ContentValues();
-            cvPhotoId.put(Costs.COLUMN_PHOTO_ID, -1);
+            String phid = null;
+            cvPhotoId.put(Costs.COLUMN_PHOTO_ID, phid);
             db = dbHelper.getWritableDatabase();
             result = db.update(Costs.TABLE_NAME, cvPhotoId, Costs.COLUMN_COST_ID + "=?", new String[]{String.valueOf(costId)});
             db.close();
         }
         return result;
     }
+
+
 }

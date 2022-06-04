@@ -1,5 +1,6 @@
 package com.tish;
 
+import android.annotation.SuppressLint;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -30,6 +31,7 @@ public class ProfileFragment extends Fragment {
 
     PrefManager prefManager;
 
+    @SuppressLint("SetTextI18n")
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
@@ -49,7 +51,7 @@ public class ProfileFragment extends Fragment {
         startDateTextView = view.findViewById(R.id.tv_user_start_date);
         startDateTextView.setText(LocalDate.parse(prefManager.getFirstDate()).format(DateTimeFormatter.ofPattern("dd-MM-yyyy")));
         periodTextView = view.findViewById(R.id.tv_user_working_period);
-        periodTextView.setText(String.valueOf(LocalDate.now().toEpochDay() - LocalDate.parse(prefManager.getFirstDate()).toEpochDay()));
+        periodTextView.setText((LocalDate.now().toEpochDay() - LocalDate.parse(prefManager.getFirstDate()).toEpochDay()) + " днів");
 
         return view;
     }

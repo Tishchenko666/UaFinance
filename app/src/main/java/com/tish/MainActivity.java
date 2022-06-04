@@ -69,7 +69,6 @@ public class MainActivity extends AppCompatActivity implements FragmentSendDataL
 
             @Override
             public void onNothingSelected(AdapterView<?> adapterView) {
-
             }
         });
 
@@ -79,7 +78,7 @@ public class MainActivity extends AppCompatActivity implements FragmentSendDataL
             prefManager.setFirstDate();
             createWelcomeMessage();
         }
-        initFragment();
+        initCostFragment();
 
         getSupportActionBar().setDisplayShowTitleEnabled(false);
         DrawerLayout drawer = findViewById(R.id.drawer_layout);
@@ -124,7 +123,7 @@ public class MainActivity extends AppCompatActivity implements FragmentSendDataL
 
     }
 
-    private void initFragment() {
+    private void initCostFragment() {
         CostsListFragment costsListFragment = new CostsListFragment();
         Bundle accountBundle = new Bundle();
         accountBundle.putString("account", spinner.getSelectedItem().toString());
@@ -132,6 +131,16 @@ public class MainActivity extends AppCompatActivity implements FragmentSendDataL
         fragmentTransaction = getSupportFragmentManager().beginTransaction();
         fragmentTransaction.add(R.id.main_container, costsListFragment, "TAG_COSTS_FRAGMENT");
         fragmentTransaction.commit();
+    }
+
+    private void initMapFragment() {
+        if (getSupportActionBar() != null)
+            getSupportActionBar().hide();
+
+        MapsFragment mapsFragment = new MapsFragment();
+
+        FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
+        ft.replace(R.id.main_container, mapsFragment, "TAG_MAP_FRAGMENT").commit();
     }
 
     @Override

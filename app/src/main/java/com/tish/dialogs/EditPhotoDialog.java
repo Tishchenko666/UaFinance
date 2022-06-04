@@ -24,36 +24,32 @@ import androidx.fragment.app.DialogFragment;
 import com.tish.MainActivity;
 import com.tish.R;
 import com.tish.db.bases.PhotoManager;
+import com.tish.db.connectors.AccPhoConnector;
 import com.tish.db.connectors.CostConnector;
 import com.tish.interfaces.FragmentSendDataListener;
 
 import java.io.File;
 
-public class GetPhotoDialog extends DialogFragment {
+public class EditPhotoDialog extends DialogFragment {
 
     private FragmentSendDataListener sendResult;
-    AlertDialog.Builder builder;
 
     CostConnector costConnector;
+    AccPhoConnector accPhoConnector;
     PhotoManager photoManager;
 
     Context context;
     String photoAddress;
+    int photoId;
     int costId;
 
-    public GetPhotoDialog(Context context, int costId) {
+    public EditPhotoDialog(Context context, String photoAddress, int costId) {
         this.context = context;
-        costConnector = new CostConnector(context);
-        photoManager = new PhotoManager(context);
-        this.costId = costId;
-    }
-
-    public GetPhotoDialog(Context context, int costId, String photoAddress) {
-        this.context = context;
-        costConnector = new CostConnector(context);
-        photoManager = new PhotoManager(context);
-        this.costId = costId;
         this.photoAddress = photoAddress;
+        this.costId = costId;
+        costConnector = new CostConnector(context);
+        accPhoConnector = new AccPhoConnector(context);
+        photoManager = new PhotoManager(context);
     }
 
     @Override
@@ -70,19 +66,10 @@ public class GetPhotoDialog extends DialogFragment {
     @NonNull
     @Override
     public Dialog onCreateDialog(@Nullable Bundle savedInstanceState) {
-        builder = new AlertDialog.Builder(getActivity());
-        if (getTag().equals("apd"))
-            addPhotoView();
-        else
-            showPhotoView();
-
-        return builder.create();
-    }
-
-    private void showPhotoView() {
+        AlertDialog.Builder builder = new AlertDialog.Builder(context);
         builder.setTitle("Фото витрати");
-        View showView = getActivity().getLayoutInflater().inflate(R.layout.show_photo_dialog_view, null);
-        ImageView photoImageView = showView.findViewById(R.id.iv_show_photo);
+        View editView = getActivity().getLayoutInflater().inflate(R.layout.show_photo_dialog_view, null);
+        ImageView photoImageView = editView.findViewById(R.id.iv_show_photo);
         photoImageView.setImageURI(Uri.fromFile(new File(photoAddress)));
         builder.setNegativeButton("Видалити", new DialogInterface.OnClickListener() {
             @Override
@@ -96,23 +83,7 @@ public class GetPhotoDialog extends DialogFragment {
                 dialogInterface.dismiss();
             }
         });
-        builder.setPositiveButton("Закрити", new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialogInterface, int i) {
-                dialogInterface.dismiss();
-            }
-        });
-    }
-
-    private void addPhotoView() {
-        builder.setMessage("Додати фото до витрати?");
-        builder.setNegativeButton("Ні", new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialogInterface, int i) {
-                dialogInterface.dismiss();
-            }
-        });
-        builder.setPositiveButton("Так", new DialogInterface.OnClickListener() {
+        builder.setPositiveButton("Замінити", new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialogInterface, int i) {
                 Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
@@ -120,6 +91,7 @@ public class GetPhotoDialog extends DialogFragment {
                 dialogInterface.dismiss();
             }
         });
+        return builder.create();
     }
 
     ActivityResultLauncher<Intent> myCameraRegister = registerForActivityResult(
@@ -132,6 +104,9 @@ public class GetPhotoDialog extends DialogFragment {
                         if (data != null) {
                             if (data.hasExtra("data")) {
                                 Bitmap photoBitmap = data.getParcelableExtra("data");
+                                photoManager.deletePhoto(photoAddress);
+                                photoId = accPhoConnector.getPhotoId(photoAddress);
+                                accPhoConnector.deletePhoto(photoId);
                                 photoAddress = photoManager.savePhoto(photoBitmap);
                                 long updateResult = costConnector.updatePhotoInCost(photoAddress, costId);
                                 sendResult.onSendData(updateResult, "TAG_COSTS_FRAGMENT");

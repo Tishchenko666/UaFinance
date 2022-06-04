@@ -45,6 +45,8 @@ import com.tish.db.bases.UkrainianMonth;
 import com.tish.db.connectors.CostConnector;
 import com.tish.dialogs.EditCostDialog;
 import com.tish.dialogs.EditGeoDialog;
+import com.tish.dialogs.EditPhotoDialog;
+import com.tish.dialogs.GetPhotoDialog;
 import com.tish.models.Cost;
 
 import java.time.YearMonth;
@@ -86,7 +88,7 @@ public class CostsListFragment extends Fragment {
         forwardButton = view.findViewById(R.id.ib_forward);
         ts = view.findViewById(R.id.ts_costs);
         chart = view.findViewById(R.id.chart);
-        
+
         costConnector = new CostConnector(getContext());
 
         initDates();
@@ -239,7 +241,13 @@ public class CostsListFragment extends Fragment {
                 editGeoDialog.show(getActivity().getSupportFragmentManager(), "egd");
                 return true;
             case R.id.context_item_edit_photo:
-                //describe later
+                if (selectedCost.isPhotoExists()) {
+                    EditPhotoDialog editPhotoDialog = new EditPhotoDialog(getContext(), selectedCost.getPhotoAddress(), selectedCost.getCostId());
+                    editPhotoDialog.show(getActivity().getSupportFragmentManager(), "epd");
+                } else {
+                    GetPhotoDialog addPhotoDialog = new GetPhotoDialog(getContext(), selectedCost.getCostId());
+                    addPhotoDialog.show(getActivity().getSupportFragmentManager(), "apd");
+                }
                 return true;
             case R.id.context_item_delete_cost:
                 ShapeDrawable sd = new ShapeDrawable(new OvalShape());

@@ -10,6 +10,8 @@ import com.tish.db.bases.DBHelper;
 import com.tish.models.Geolocation;
 
 import java.sql.ResultSet;
+import java.util.ArrayList;
+import java.util.List;
 
 public class GeoConnector {
     private DBHelper dbHelper;
@@ -18,6 +20,27 @@ public class GeoConnector {
 
     public GeoConnector(Context context) {
         this.dbHelper = DBHelper.newInstance(context);
+    }
+
+    public List<Geolocation> getGeos() {
+        List<Geolocation> geoList = new ArrayList<>();
+        Geolocation temp;
+        db = dbHelper.getReadableDatabase();
+        geoCursor = db.rawQuery("select * from " + Geolocations.TABLE_NAME, null);
+        geoCursor.moveToFirst();
+        while (geoCursor.moveToNext()) {
+            temp = new Geolocation();
+            temp.setGeoId(geoCursor.getInt(geoCursor.getColumnIndexOrThrow(Geolocations.COLUMN_GEO_ID)));
+            temp.setLongitude(geoCursor.getDouble(geoCursor.getColumnIndexOrThrow(Geolocations.COLUMN_LONGITUDE)));
+            temp.setLatitude(geoCursor.getDouble(geoCursor.getColumnIndexOrThrow(Geolocations.COLUMN_LATITUDE)));
+            temp.setCountry(geoCursor.getString(geoCursor.getColumnIndexOrThrow(Geolocations.COLUMN_COUNTRY)));
+            temp.setCity(geoCursor.getString(geoCursor.getColumnIndexOrThrow(Geolocations.COLUMN_CITY)));
+            temp.setAddress(geoCursor.getString(geoCursor.getColumnIndexOrThrow(Geolocations.COLUMN_ADDRESS)));
+            geoList.add(temp);
+        }
+        geoCursor.close();
+        db.close();
+        return geoList;
     }
 
     public Geolocation getGeoById(int geoId) {
