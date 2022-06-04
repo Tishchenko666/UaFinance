@@ -1,31 +1,39 @@
 <resources>
     <string name="app_name">UaFinance</string>
+
     <string name="nav_item_costs">Списки потоків</string>
     <string name="nav_item_map">Карта витрат</string>
     <string name="nav_item_statistic">Статистика</string>
     <string name="red_cat_guard">Рудий кіт завжди на варті</string>
     <string name="navigation_drawer_open">Open navigation drawer</string>
     <string name="navigation_drawer_close">Close navigation drawer</string>
+
     <string name="item_add_record">Додати запис</string>
     <string name="item_change_type">Змінити тип</string>
+
     <string name="enter_amount">Введіть суму</string>
     <string name="enter_date">Введіть дату</string>
     <string name="enter_market_name">Введіть назву місця витрати</string>
     <string name="enter_city">Введіть місто</string>
     <string name="enter_address">Введіть адресу</string>
     <string name="add_cheque_photo">Додати фото чеку: </string>
+
     <string name="date_format">yyyy-MM-dd</string>
+
     <string name="add_cost_address">Додати адресу</string>
     <string name="edit_cost">Змінити витрату</string>
     <string name="edit_geo">Змінити геоданні</string>
     <string name="edit_photo">Змінити фото</string>
     <string name="delete_cost">Видалити витрату</string>
+
     <string name="nav_item_profile">Профіль користувача</string>
     <string name="nav_item_acc_manager">Менеджер рахунків</string>
     <string name="nav_item_settings">Налаштування</string>
     <string name="get_statistics">Отримати статистику</string>
     <string name="statistics_settings">Налаштування статистики</string>
+
     <string name="export_data">Експортувати дані</string>
+
     <string name="statistics_type">Тип статистики:</string>
     <string name="by_category">Категорії</string>
     <string name="by_market">Місце витрати</string>
@@ -35,4 +43,27 @@
     <string name="date_season">Сезон</string>
     <string name="date_year">Рік</string>
     <string name="date_period_amount">Кількість періодів:</string>
+
+    <string name="am_add_account">Додати рахунок</string>
+    <string name="account_number">Номер рахунку</string>
+
+    <string name="user_name">Ім`я:</string>
+    <string name="user_gender">Стать:</string>
+    <string name="user_age">Вік:</string>
+    <string name="user_profession">Професія:</string>
+    <string name="user_start_date">Дата створення:</string>
+    <string name="user_working_period">Період використання:</string>
+    <string name="gender_male">Чоловіча</string>
+    <string name="gender_female">Жіноча</string>
+    <string name="user_goal">Ціль:</string>
+
+    <string name="welcome_title">Ласкаво просимо до UaFinance</string>
+    <string name="welcome_message">
+        Для додавання витрат використовуйте кнопку + у правому верхньому куті екрану.\n
+        Для управління рахунками, пов`язаними з витратами, використовуйте <![CDATA[<font color="#1737EA" >Менеджер рахунків</font>]]>\n
+        Для управління особистими даними використовуйте <![CDATA[<font color="#1737EA" >Профіль користувача</font>]]>
+    </string>
+
+    <string name="number_of_costs">Число витрат: </string>
+    <string name="costs_amount_sum">Сума витрат:</string>
 </resources>
