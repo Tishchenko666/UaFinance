@@ -78,11 +78,13 @@ public class EditGeoDialog extends DialogFragment {
         builder.setTitle("Змініть геодані");
         View editGeoView = getActivity().getLayoutInflater().inflate(R.layout.edit_geo_dialog_view, null);
         cityEditText = editGeoView.findViewById(R.id.et_edit_geo_city);
-        cityEditText.setText(editGeo.getCity());
         addressEditText = editGeoView.findViewById(R.id.et_edit_geo_address);
-        addressEditText.setText(editGeo.getAddress());
         countryTextView = editGeoView.findViewById(R.id.tv_edit_geo_country);
-        countryTextView.setText(editGeo.getCountry());
+        if (editGeo != null) {
+            cityEditText.setText(editGeo.getCity());
+            addressEditText.setText(editGeo.getAddress());
+            countryTextView.setText(editGeo.getCountry());
+        }
         errorTextView = editGeoView.findViewById(R.id.tv_edit_geo_error);
         builder.setView(editGeoView);
         builder.setPositiveButton("Змінити", null);
@@ -113,29 +115,16 @@ public class EditGeoDialog extends DialogFragment {
                             errorTextView.setVisibility(View.VISIBLE);
                         } else {
                             errorTextView.setVisibility(View.INVISIBLE);
-                            if ((!city.equals(editGeo.getCity()) || !address.equals(editGeo.getAddress()))
-                                    || (!city.equals(editGeo.getCity()) && !address.equals(editGeo.getAddress()))) {
-                                try {
-                                    ads = geocoder.getFromLocationName(address + " " + city, 1);
-                                    if (ads.size() > 0) {
-                                        MathContext mathContext = new MathContext(5, RoundingMode.HALF_UP);
-                                        editGeo.setLongitude(new BigDecimal(ads.get(0).getLongitude(), mathContext).doubleValue());
-                                        editGeo.setLatitude(new BigDecimal(ads.get(0).getLatitude(), mathContext).doubleValue());
-                                        editGeo.setCountry(ads.get(0).getCountryName());
-                                        editGeo.setCity(city);
-                                        editGeo.setAddress(address);
-                                        canBeSaved = true;
-                                    } else {
-                                        errorTextView.setText("У цьому місті немає такої адреси");
-                                        errorTextView.setVisibility(View.VISIBLE);
-                                        canBeSaved = false;
-                                    }
-                                } catch (IOException e) {
-                                    Toast.makeText(context, "Обробка адреси неможлива. Спробуйте пізніше", Toast.LENGTH_SHORT).show();
-                                    canBeSaved = true;
+                            if (editGeo != null) {
+                                if ((!city.equals(editGeo.getCity()) || !address.equals(editGeo.getAddress()))
+                                        || (!city.equals(editGeo.getCity()) && !address.equals(editGeo.getAddress()))) {
+                                    getGeoLocation(address, city);
+                                } else if (city.equals(editGeo.getCity()) && address.equals(editGeo.getAddress())) {
+                                    thisDialog.dismiss();
                                 }
-                            } else if (city.equals(editGeo.getCity()) && address.equals(editGeo.getAddress())) {
-                                thisDialog.dismiss();
+                            } else {
+                                editGeo = new Geolocation();
+                                getGeoLocation(address, city);
                             }
 
                             if (canBeSaved) {
@@ -150,5 +139,26 @@ public class EditGeoDialog extends DialogFragment {
         });
 
         return thisDialog;
+    }
+
+    private void getGeoLocation(String... address) {
+        try {
+            ads = geocoder.getFromLocationName(address[0] + " " + address[1], 1);
+            if (ads.size() > 0) {
+                editGeo.setLongitude(ads.get(0).getLongitude());
+                editGeo.setLatitude(ads.get(0).getLatitude());
+                editGeo.setCountry(ads.get(0).getCountryName());
+                editGeo.setCity(address[1]);
+                editGeo.setAddress(address[0]);
+                canBeSaved = true;
+            } else {
+                errorTextView.setText("У цьому місті немає такої адреси");
+                errorTextView.setVisibility(View.VISIBLE);
+                canBeSaved = false;
+            }
+        } catch (IOException e) {
+            Toast.makeText(context, "Обробка адреси неможлива. Спробуйте пізніше", Toast.LENGTH_SHORT).show();
+            canBeSaved = true;
+        }
     }
 }

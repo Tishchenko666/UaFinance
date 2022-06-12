@@ -20,13 +20,11 @@ import com.tish.interfaces.FragmentSendDataListener;
 public class UserActivity extends AppCompatActivity implements FragmentSendDataListener {
 
     private FragmentTransaction fragmentTransaction;
-    private boolean addFragment;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_user);
-        addFragment = true;
         initView();
     }
 
@@ -45,60 +43,63 @@ public class UserActivity extends AppCompatActivity implements FragmentSendDataL
             @Override
             public boolean onNavigationItemSelected(@NonNull MenuItem item) {
                 Intent openIntent = new Intent();
-                fragmentTransaction = getSupportFragmentManager().beginTransaction();
                 switch (item.getItemId()) {
                     case R.id.nav_profile:
-                        addFragment = false;
-                        getSupportActionBar().setTitle(R.string.nav_item_profile);
-                        ProfileFragment profileFragment = new ProfileFragment();
-                        fragmentTransaction.replace(R.id.user_container, profileFragment, "TAG_PR_FRAGMENT");
-                        fragmentTransaction.commit();
+                        initProfile();
                         break;
                     case R.id.nav_account_manager:
-                        addFragment = false;
-                        getSupportActionBar().setTitle(R.string.nav_item_acc_manager);
-                        AccountManagerFragment accountManagerFragment = new AccountManagerFragment();
-                        fragmentTransaction.add(R.id.user_container, accountManagerFragment, "TAG_AM_FRAGMENT");
-                        fragmentTransaction.commit();
+                        initAccountManager();
                         break;
                     case R.id.nav_list:
                         openIntent.setClass(UserActivity.this, MainActivity.class);
+                        openIntent.putExtra("fragment", 'c');
+                        startActivity(openIntent);
                         break;
                     case R.id.nav_map:
-
+                        openIntent.setClass(UserActivity.this, MainActivity.class);
+                        openIntent.putExtra("fragment", 'm');
+                        startActivity(openIntent);
                         break;
                     case R.id.nav_statistic:
                         openIntent.setClass(UserActivity.this, StatisticsActivity.class);
+                        startActivity(openIntent);
                         break;
                     case R.id.nav_settings:
-
                         break;
                     default:
                         Toast.makeText(UserActivity.this, "Nothing selected", Toast.LENGTH_LONG).show();
                 }
-                startActivity(openIntent);
                 drawer.closeDrawer(GravityCompat.START);
                 return true;
             }
         });
 
-        if (addFragment) {
-            fragmentTransaction = getSupportFragmentManager().beginTransaction();
-            Bundle args = getIntent().getExtras();
-            if (args.getChar("fragment") == 'p') {
-                getSupportActionBar().setTitle(R.string.nav_item_profile);
-                navigationView.setCheckedItem(R.id.nav_profile);
-                ProfileFragment profileFragment = new ProfileFragment();
-                fragmentTransaction.add(R.id.user_container, profileFragment, "TAG_PR_FRAGMENT");
-            } else if (args.getChar("fragment") == 'a') {
-                getSupportActionBar().setTitle(R.string.nav_item_acc_manager);
-                navigationView.setCheckedItem(R.id.nav_account_manager);
-                AccountManagerFragment accountManagerFragment = new AccountManagerFragment();
-                fragmentTransaction.add(R.id.user_container, accountManagerFragment, "TAG_AM_FRAGMENT");
-            }
-            fragmentTransaction.commit();
+        Bundle args = getIntent().getExtras();
+        if (args.getChar("fragment") == 'p') {
+            navigationView.setCheckedItem(R.id.nav_profile);
+            initProfile();
+        } else if (args.getChar("fragment") == 'a') {
+            navigationView.setCheckedItem(R.id.nav_account_manager);
+            initAccountManager();
         }
     }
+
+    private void initProfile() {
+        getSupportActionBar().setTitle(R.string.nav_item_profile);
+        ProfileFragment profileFragment = new ProfileFragment();
+        fragmentTransaction = getSupportFragmentManager().beginTransaction();
+        fragmentTransaction.replace(R.id.user_container, profileFragment, "TAG_PR_FRAGMENT");
+        fragmentTransaction.commit();
+    }
+
+    private void initAccountManager() {
+        getSupportActionBar().setTitle(R.string.nav_item_acc_manager);
+        AccountManagerFragment accountManagerFragment = new AccountManagerFragment();
+        fragmentTransaction = getSupportFragmentManager().beginTransaction();
+        fragmentTransaction.replace(R.id.user_container, accountManagerFragment, "TAG_AM_FRAGMENT");
+        fragmentTransaction.commit();
+    }
+
 
     @Override
     public void onSendData(long data, String fragmentTag) {

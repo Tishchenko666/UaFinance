@@ -24,7 +24,7 @@ public class DBHelper extends SQLiteOpenHelper {
     @Override
     public void onCreate(SQLiteDatabase db) {
         db.execSQL(DBContract.Costs.CREATE_TABLE_COSTS);
-        db.execSQL(DBContract.Incomes.CREATE_TABLE_INCOMES);
+        //db.execSQL(DBContract.Incomes.CREATE_TABLE_INCOMES);
         db.execSQL(DBContract.Geolocations.CREATE_TABLE_GEOLOCATIONS);
         db.execSQL(DBContract.Accounts.CREATE_TABLE_ACCOUNTS);
         db.execSQL(DBContract.Photos.CREATE_TABLE_PHOTOS);

@@ -21,19 +21,6 @@ import java.util.List;
 
 public class CostsExpListAdapter extends BaseExpandableListAdapter {
 
-    private static class CostViewHolder {
-        ImageView imageViewCategoryIcon;
-        TextView textViewCategory;
-        TextView textViewAmount;
-    }
-
-    private static class CostDetailsViewHolder {
-        TextView textViewMarketName;
-        TextView textViewDate;
-        TextView textViewGeo;
-        ImageButton imageButtonPhoto;
-    }
-
     private Context context;
     private List<Cost> costList;
 
@@ -42,64 +29,64 @@ public class CostsExpListAdapter extends BaseExpandableListAdapter {
         this.costList = list;
     }
 
+    public void setList(ArrayList<Cost> list) {
+        this.costList.clear();
+        this.costList = list;
+        notifyDataSetChanged();
+    }
+
     @Override
     public View getGroupView(int groupPosition, boolean isExpanded,
                              View view, ViewGroup viewGroup) {
-        CostViewHolder viewHolder;
-        if (view == null) {
-            viewHolder = new CostViewHolder();
-            view = LayoutInflater.from(context).inflate(R.layout.item_cost, viewGroup, false);
-            viewHolder.imageViewCategoryIcon = view.findViewById(R.id.iv_category_icon);
-            viewHolder.textViewCategory = view.findViewById(R.id.tv_category);
-            viewHolder.textViewAmount = view.findViewById(R.id.tv_amount);
-        } else
-            viewHolder = (CostViewHolder) view.getTag();
+
+        view = LayoutInflater.from(context).inflate(R.layout.item_cost, viewGroup, false);
+        ImageView imageViewCategoryIcon = view.findViewById(R.id.iv_category_icon);
+        TextView textViewCategory = view.findViewById(R.id.tv_category);
+        TextView textViewAmount = view.findViewById(R.id.tv_amount);
 
         Cost cost = costList.get(groupPosition);
 
-        viewHolder.imageViewCategoryIcon.setImageResource(cost.getCategory().getIconResource());
+        imageViewCategoryIcon.setImageResource(cost.getCategory().getIconResource());
         ShapeDrawable sd = new ShapeDrawable(new OvalShape());
-        sd.setIntrinsicWidth(40);
-        sd.setIntrinsicWidth(40);
+        sd.setIntrinsicWidth(30);
+        sd.setIntrinsicWidth(30);
         sd.getPaint().setColor(context.getResources().getColor(cost.getCategory().getColorResource(), null));
-        viewHolder.imageViewCategoryIcon.setBackground(sd);
-        viewHolder.textViewCategory.setText(cost.getCategoryName());
-        viewHolder.textViewAmount.setText(String.valueOf(cost.getAmount()));
+        imageViewCategoryIcon.setBackground(sd);
+        textViewCategory.setText(cost.getCategoryName());
+        textViewAmount.setText(String.format("-%s", cost.getAmount()));
+
         return view;
     }
 
     @Override
     public View getChildView(int groupPosition, int childPosition, boolean isExpanded,
                              View view, ViewGroup viewGroup) {
-        CostDetailsViewHolder viewHolder;
-        if (view == null) {
-            viewHolder = new CostDetailsViewHolder();
-            view = LayoutInflater.from(context).inflate(R.layout.item_cost_details, viewGroup, false);
-            viewHolder.textViewMarketName = view.findViewById(R.id.tv_market_name);
-            viewHolder.textViewDate = view.findViewById(R.id.tv_date);
-            viewHolder.textViewGeo = view.findViewById(R.id.tv_geo);
-            viewHolder.imageButtonPhoto = view.findViewById(R.id.ib_photo);
-        } else
-            viewHolder = (CostDetailsViewHolder) view.getTag();
+
+        view = LayoutInflater.from(context).inflate(R.layout.item_cost_details, viewGroup, false);
+        TextView textViewMarketName = view.findViewById(R.id.tv_market_name);
+        TextView textViewDate = view.findViewById(R.id.tv_date);
+        TextView textViewGeo = view.findViewById(R.id.tv_geo);
+        ImageView imageButtonPhoto = view.findViewById(R.id.ib_photo);
+
 
         Cost cost = costList.get(groupPosition);
 
         if (cost.getMarketName() != null)
-            viewHolder.textViewMarketName.setText(cost.getMarketName());
+            textViewMarketName.setText(cost.getMarketName());
         else
-            viewHolder.textViewMarketName.setText("Місце покупки не вказано");
+            textViewMarketName.setText("Місце покупки не вказано");
 
-        viewHolder.textViewDate.setText(cost.getDate());
+        textViewDate.setText(cost.getDate());
 
         if (cost.getGeo() != null)
-            viewHolder.textViewGeo.setText(cost.getGeo().getAddress() + ", " + cost.getGeo().getCity());
+            textViewGeo.setText(String.format("%s, %s", cost.getGeo().getAddress(), cost.getGeo().getCity()));
 
         if (cost.isPhotoExists())
-            viewHolder.imageButtonPhoto.setImageResource(R.drawable.icon_cheque_is);
+            imageButtonPhoto.setImageResource(R.drawable.icon_cheque_is);
         else
-            viewHolder.imageButtonPhoto.setImageResource(R.drawable.icon_no_cheque);
+            imageButtonPhoto.setImageResource(R.drawable.icon_no_cheque);
 
-        viewHolder.imageButtonPhoto.setOnClickListener(new View.OnClickListener() {
+        imageButtonPhoto.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 if (cost.isPhotoExists()) {
@@ -117,12 +104,12 @@ public class CostsExpListAdapter extends BaseExpandableListAdapter {
 
     @Override
     public int getGroupCount() {
-        return 0;
+        return costList.size();
     }
 
     @Override
     public int getChildrenCount(int groupPosition) {
-        return 0;
+        return 1;
     }
 
     @Override
@@ -132,7 +119,7 @@ public class CostsExpListAdapter extends BaseExpandableListAdapter {
 
     @Override
     public Object getChild(int groupPosition, int childPosition) {
-        return null;
+        return costList.get(groupPosition);
     }
 
     @Override
@@ -147,11 +134,11 @@ public class CostsExpListAdapter extends BaseExpandableListAdapter {
 
     @Override
     public boolean hasStableIds() {
-        return true;
+        return false;
     }
 
     @Override
     public boolean isChildSelectable(int groupPosition, int childPosition) {
-        return true;
+        return false;
     }
 }

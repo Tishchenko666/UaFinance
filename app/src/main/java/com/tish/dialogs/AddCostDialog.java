@@ -151,7 +151,7 @@ public class AddCostDialog extends DialogFragment
                             errorTextView.setVisibility(View.INVISIBLE);
 
                             double costAmount = Double.parseDouble(amount);
-                            newCost.setAmount(-costAmount);
+                            newCost.setAmount(costAmount);
                             if (date.equals("-"))
                                 newCost.setDate(LocalDate.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd")));
                             else {
@@ -194,9 +194,8 @@ public class AddCostDialog extends DialogFragment
                                     try {
                                         ads = geocoder.getFromLocationName(address + " " + city, 1);
                                         if (ads.size() > 0) {
-                                            MathContext mathContext = new MathContext(5, RoundingMode.HALF_UP);
-                                            geo.setLongitude(new BigDecimal(ads.get(0).getLongitude(), mathContext).doubleValue());
-                                            geo.setLatitude(new BigDecimal(ads.get(0).getLatitude(), mathContext).doubleValue());
+                                            geo.setLongitude(ads.get(0).getLongitude());
+                                            geo.setLatitude(ads.get(0).getLatitude());
                                             geo.setCountry(ads.get(0).getCountryName());
                                             geo.setCity(city);
                                             geo.setAddress(address);
@@ -218,6 +217,7 @@ public class AddCostDialog extends DialogFragment
                             }
                             //describe photo adding
                             newCost.setPhotoAddress(photoAddress);
+
                             if (canBeSaved) {
                                 long insertResult = costConnector.insertNewCost(newCost);
                                 sendInsertResult.onSendData(insertResult, "TAG_COSTS_FRAGMENT");

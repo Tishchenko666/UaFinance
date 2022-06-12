@@ -58,7 +58,7 @@ public class MapsFragment extends Fragment
             title.setText(marker.getTitle());
             TextView numberValue = mWindow.findViewById(R.id.tv_snippet_number_value);
             TextView amountValue = mWindow.findViewById(R.id.tv_snippet_amount_value);
-            GeoPair currentPair = infoSnippetsMap.get((Integer) marker.getTag());
+            GeoPair currentPair = infoSnippetsMap.get(marker.getTag());
             numberValue.setText(currentPair.getNumber());
             amountValue.setText(currentPair.getAmount());
             return null;
@@ -142,8 +142,7 @@ public class MapsFragment extends Fragment
         getLocationPermission();
         updateLocationUI();
         getDeviceLocation();
-        map.moveCamera(CameraUpdateFactory
-                .newLatLngZoom(defaultLocation, DEFAULT_ZOOM));
+        //map.moveCamera(CameraUpdateFactory.newLatLngZoom(defaultLocation, DEFAULT_ZOOM));
     }
 
     private void addMarkersToMap() {

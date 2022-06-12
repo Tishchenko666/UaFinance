@@ -1,5 +1,6 @@
 package com.tish.db.bases;
 
+import com.tish.MainActivity;
 import com.tish.R;
 
 public enum Category {

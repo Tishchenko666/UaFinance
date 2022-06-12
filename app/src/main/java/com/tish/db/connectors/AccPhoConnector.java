@@ -17,14 +17,17 @@ public class AccPhoConnector {
     private DBHelper dbHelper;
     private SQLiteDatabase db;
     private Cursor apCursor;
+    private Context context;
 
     public AccPhoConnector(Context context) {
         this.dbHelper = DBHelper.newInstance(context);
+        this.context = context;
     }
 
     public List<String> getAccounts() {
         List<String> accountList = new ArrayList<>();
-        accountList.add(String.valueOf(R.string.app_name));
+
+        accountList.add(String.valueOf(context.getResources().getString(R.string.app_name)));
         db = dbHelper.getReadableDatabase();
         apCursor = db.rawQuery("select * from " + Accounts.TABLE_NAME, null);
         if (apCursor.getCount() > 0) {
@@ -60,7 +63,7 @@ public class AccPhoConnector {
 
     public int getPhotoId(String address) {
         db = dbHelper.getReadableDatabase();
-        apCursor = db.rawQuery("select " + Photos.COLUMN_PHOTO_ID + " from " + Photos.TABLE_NAME + " where " + Photos.COLUMN_LINK + "=" + address, null);
+        apCursor = db.rawQuery("select " + Photos.COLUMN_PHOTO_ID + " from " + Photos.TABLE_NAME + " where " + Photos.COLUMN_LINK + "='" + address + "'", null);
         apCursor.moveToFirst();
         int photoId = apCursor.getInt(apCursor.getColumnIndexOrThrow(Photos.COLUMN_PHOTO_ID));
         apCursor.close();

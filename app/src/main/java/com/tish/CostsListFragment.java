@@ -2,6 +2,7 @@ package com.tish;
 
 import android.annotation.SuppressLint;
 import android.app.AlertDialog;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.graphics.Color;
 import android.graphics.drawable.BitmapDrawable;
@@ -24,8 +25,10 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
+import android.widget.AdapterView;
 import android.widget.AdapterView.AdapterContextMenuInfo;
 import android.widget.ExpandableListView;
+import android.widget.ExpandableListView.ExpandableListContextMenuInfo;
 import android.widget.ImageButton;
 import android.widget.TextSwitcher;
 import android.widget.TextView;
@@ -67,6 +70,7 @@ public class CostsListFragment extends Fragment {
     Animation slideOutRight;
 
     YearMonth thisYearMonth;
+    YearMonth currentYearMonth;
     String account = "";
 
     ExpandableListView costsListView;
@@ -79,9 +83,15 @@ public class CostsListFragment extends Fragment {
     int[] colors;
     PieChart chart;
     PieDataSet set;
+    PieData data;
+
+
+    boolean costsExist = false;
+
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+
         View view = inflater.inflate(R.layout.fragment_costs_list, container, false);
         costsListView = view.findViewById(R.id.ex_list_costs);
         backButton = view.findViewById(R.id.ib_back);
@@ -91,34 +101,22 @@ public class CostsListFragment extends Fragment {
 
         costConnector = new CostConnector(getContext());
 
-        initDates();
-
-        boolean costsExist = costConnector.costsExist();
-
         if (getArguments() != null)
             account = getArguments().getString("account");
 
-        if (costsExist && account.equals(getContext().getResources().getString(R.string.app_name))) {
-            costsList = costConnector.getCostsByDate(thisYearMonth.toString());
-            entries = costConnector.getTotalAmountsForCategoriesByDate(thisYearMonth.toString());
-            colors = costConnector.getCategoriesColorsByDate(thisYearMonth.toString());
-        } else if (costsExist) {
-            costsList = costConnector.getCostsByDateAccount(thisYearMonth.toString(), account);
-            entries = costConnector.getTotalAmountsForCategoriesByDateAccount(thisYearMonth.toString(), account);
-            colors = costConnector.getCategoriesColorsByDateAccount(thisYearMonth.toString(), account);
-        } else {
-            entries.add(new PieEntry(1));
-            colors = new int[1];
-            colors[0] = R.color.bright_blue;
-        }
+        costsExist = costConnector.costsExist();
+
+        initDates(costsExist);
+
+        initLists();
 
         costsListAdapter = new CostsExpListAdapter(getContext(), costsList);
         costsListView.setAdapter(costsListAdapter);
 
         set = new PieDataSet(entries, "Costs");
-        set.setColors(colors, getContext());
-        PieData data = new PieData(set);
-        setChartOptions();
+        set.setColors(colors);
+        data = new PieData(set);
+        setChartOptions(costsExist);
         chart.setData(data);
         chart.invalidate();
 
@@ -126,16 +124,47 @@ public class CostsListFragment extends Fragment {
 
         costsListView.setLongClickable(true);
         registerForContextMenu(costsListView);
+
         return view;
     }
 
-    private void initDates() {
+    private void initLists() {
+        if (costsExist && account.equals(getContext().getResources().getString(R.string.app_name))) {
+            costsList = costConnector.getCostsByDate(thisYearMonth.toString());
+            entries = costConnector.getTotalAmountsForCategoriesByDate(thisYearMonth.toString());
+            colors = costConnector.getCategoriesColorsByDate(thisYearMonth.toString());
+            for (int i = 0; i < colors.length; i++) {
+                colors[i] = getResources().getColor(colors[i], null);
+            }
+        } else if (costsExist) {
+            costsList = costConnector.getCostsByDateAccount(thisYearMonth.toString(), account);
+            entries = costConnector.getTotalAmountsForCategoriesByDateAccount(thisYearMonth.toString(), account);
+            colors = costConnector.getCategoriesColorsByDateAccount(thisYearMonth.toString(), account);
+            for (int i = 0; i < colors.length; i++) {
+                colors[i] = getResources().getColor(colors[i], null);
+            }
+        } else {
+            entries = new ArrayList<>();
+            entries.add(new PieEntry(1));
+            colors = new int[1];
+            colors[0] = getResources().getColor(R.color.bright_blue, null);
+        }
+    }
+
+    private void initDates(boolean hasCosts) {
         thisYearMonth = YearMonth.now();
-        dateList = costConnector.getCostDates(0);
-        dateCounter = dateList.size() - 1;
-        if (!dateList.get(dateCounter).equals(thisYearMonth)) {
+        currentYearMonth = thisYearMonth;
+        if (hasCosts) {
+            dateList = costConnector.getCostDates(0);
+            dateCounter = dateList.size() - 1;
+            if (!dateList.get(dateCounter).equals(thisYearMonth)) {
+                dateList.add(thisYearMonth);
+                dateCounter++;
+            }
+        } else {
+            dateCounter = 0;
+            dateList = new ArrayList<>();
             dateList.add(thisYearMonth);
-            dateCounter++;
         }
         ts.setFactory(new ViewSwitcher.ViewFactory() {
             @Override
@@ -150,7 +179,7 @@ public class CostsListFragment extends Fragment {
         ts.setText(UkrainianMonth.valueOf(thisYearMonth.getMonth().toString()).getUrkMonth() + ", " + thisYearMonth.getYear());
     }
 
-    private void setChartOptions() {
+    private void setChartOptions(boolean hasCosts) {
         set.setValueTextColor(Color.BLACK);
         set.setValueTextSize(15);
         chart.setEntryLabelColor(Color.BLACK);
@@ -158,9 +187,15 @@ public class CostsListFragment extends Fragment {
         Description desc = new Description();
         desc.setText("");
         chart.setDescription(desc);
-        chart.setCenterText(String.valueOf(entries.stream().map(PieEntry::getValue).reduce(0f, Float::sum)));
+        chart.setCenterTextSize(20);
+        if (hasCosts) {
+            chart.setCenterText("-" + entries.stream().map(PieEntry::getValue).reduce(0f, Float::sum));
+        } else {
+            chart.setCenterText("Загальні витрати");
+        }
         chart.setUsePercentValues(true);
         chart.setDrawEntryLabels(false);
+        set.setDrawValues(false);
         chart.setSelected(false);
     }
 
@@ -178,7 +213,11 @@ public class CostsListFragment extends Fragment {
                     YearMonth yearMonth = dateList.get(dateCounter);
                     ts.setText(UkrainianMonth.valueOf(yearMonth.getMonth().toString()).getUrkMonth() + ", " + yearMonth.getYear());
 
-                    updateDataByDate(yearMonth.toString());
+                    currentYearMonth = yearMonth;
+                    if (account.equals(getContext().getResources().getString(R.string.app_name)))
+                        updateDataByDate(yearMonth.toString(), false);
+                    else
+                        updateDataByDateAccount(yearMonth.toString(), false);
                 }
             }
         });
@@ -196,26 +235,83 @@ public class CostsListFragment extends Fragment {
                     YearMonth yearMonth = dateList.get(dateCounter);
                     ts.setText(UkrainianMonth.valueOf(yearMonth.getMonth().toString()).getUrkMonth() + ", " + yearMonth.getYear());
 
-                    updateDataByDate(yearMonth.toString());
+                    currentYearMonth = yearMonth;
+                    if (account.equals(getContext().getResources().getString(R.string.app_name)))
+                        updateDataByDate(yearMonth.toString(), false);
+                    else
+                        updateDataByDateAccount(yearMonth.toString(), false);
                 }
             }
         });
     }
 
-    private void updateDataByDate(String date) {
+    void updateDataByDate(String date, boolean useCurrent) {
+
         costsList.clear();
         entries.clear();
-        if (account.equals(getContext().getResources().getString(R.string.app_name))) {
-            costsList = costConnector.getCostsByDate(thisYearMonth.toString());
-            entries = costConnector.getTotalAmountsForCategoriesByDate(thisYearMonth.toString());
-            colors = costConnector.getCategoriesColorsByDate(thisYearMonth.toString());
-        } else {
-            costsList = costConnector.getCostsByDate(date);
-            entries = costConnector.getTotalAmountsForCategoriesByDate(date);
-            colors = costConnector.getCategoriesColorsByDate(date);
+        set.clear();
+        data.clearValues();
+
+        if (useCurrent)
+            date = currentYearMonth.toString();
+
+        costsList = costConnector.getCostsByDate(date);
+        costsListAdapter.setList(costsList);
+        costsListView.setAdapter(costsListAdapter);
+
+
+        entries = costConnector.getTotalAmountsForCategoriesByDate(date);
+        colors = costConnector.getCategoriesColorsByDate(date);
+
+        for (int i = 0; i < colors.length; i++) {
+            colors[i] = getResources().getColor(colors[i], null);
         }
-        costsListAdapter.notifyDataSetChanged();
-        chart.setCenterText(String.valueOf(entries.stream().map(PieEntry::getValue).reduce(0f, Float::sum)));
+
+
+        set.setValues(entries);
+        set.setColors(colors);
+
+        data.setDataSet(set);
+
+        chart.setCenterText("-" + entries.stream().map(PieEntry::getValue).reduce(0f, Float::sum));
+        chart.notifyDataSetChanged();
+        chart.invalidate();
+    }
+
+    void updateDataByDateAccount(String date, boolean useCurrent) {
+
+        costsList.clear();
+        entries.clear();
+        set.clear();
+        data.clearValues();
+
+        if (useCurrent)
+            date = currentYearMonth.toString();
+
+        if (getArguments() != null)
+            account = getArguments().getString("account");
+
+        costsList = costConnector.getCostsByDateAccount(date, account);
+        entries = costConnector.getTotalAmountsForCategoriesByDateAccount(date, account);
+        colors = costConnector.getCategoriesColorsByDateAccount(date, account);
+        costsListAdapter.setList(costsList);
+        costsListView.setAdapter(costsListAdapter);
+
+
+        entries = costConnector.getTotalAmountsForCategoriesByDateAccount(date, account);
+        colors = costConnector.getCategoriesColorsByDateAccount(date, account);
+
+        for (int i = 0; i < colors.length; i++) {
+            colors[i] = getResources().getColor(colors[i], null);
+        }
+
+
+        set.setValues(entries);
+        set.setColors(colors);
+
+        data.setDataSet(set);
+
+        chart.setCenterText("-" + entries.stream().map(PieEntry::getValue).reduce(0f, Float::sum));
         chart.notifyDataSetChanged();
         chart.invalidate();
     }
@@ -229,8 +325,8 @@ public class CostsListFragment extends Fragment {
     @SuppressLint("NonConstantResourceId")
     @Override
     public boolean onContextItemSelected(@NonNull MenuItem item) {
-        AdapterContextMenuInfo info = (AdapterContextMenuInfo) item.getMenuInfo();
-        Cost selectedCost = costsListAdapter.getGroup(info.position);
+        ExpandableListContextMenuInfo info = (ExpandableListContextMenuInfo) item.getMenuInfo();
+        Cost selectedCost = costsListAdapter.getGroup(ExpandableListView.getPackedPositionGroup(info.packedPosition));
         switch (item.getItemId()) {
             case R.id.context_item_edit_cost:
                 EditCostDialog editCostDialog = new EditCostDialog(getContext(), selectedCost);
@@ -266,8 +362,11 @@ public class CostsListFragment extends Fragment {
                             public void onClick(DialogInterface dialog, int which) {
                                 int result = costConnector.deleteCost(selectedCost.getCostId());
                                 if (result > 0) {
-                                    getActivity().getSupportFragmentManager().beginTransaction()
-                                            .detach(CostsListFragment.this).attach(CostsListFragment.this).commit();
+                                    if (account.equals(getResources().getString(R.string.app_name)))
+                                        updateDataByDate("", true);
+                                    else {
+                                        updateDataByDateAccount("", true);
+                                    }
                                     dialog.dismiss();
                                 } else
                                     Toast.makeText(getContext(), "При видаленні сталась помилка", Toast.LENGTH_SHORT).show();

@@ -61,10 +61,12 @@ public class MainActivity extends AppCompatActivity implements FragmentSendDataL
                 ab.putString("account", accountList.get(position));
                 CostsListFragment clf;
                 clf = (CostsListFragment) getSupportFragmentManager().findFragmentByTag("TAG_COSTS_FRAGMENT");
+                fragmentTransaction = getSupportFragmentManager().beginTransaction();
+                fragmentTransaction.detach(clf).commit();
                 clf.getArguments().clear();
                 clf.setArguments(ab);
                 fragmentTransaction = getSupportFragmentManager().beginTransaction();
-                fragmentTransaction.detach(clf).attach(clf).commit();
+                fragmentTransaction.attach(clf).commit();
             }
 
             @Override
@@ -78,7 +80,16 @@ public class MainActivity extends AppCompatActivity implements FragmentSendDataL
             prefManager.setFirstDate();
             createWelcomeMessage();
         }
-        initCostFragment();
+
+        Bundle args = getIntent().getExtras();
+        if (args != null) {
+            if (args.getChar("fragment") == 'c') {
+                initCostFragment();
+            } else if (args.getChar("fragment") == 'm') {
+                initMapFragment();
+            }
+        } else
+            initCostFragment();
 
         getSupportActionBar().setDisplayShowTitleEnabled(false);
         DrawerLayout drawer = findViewById(R.id.drawer_layout);
@@ -95,27 +106,28 @@ public class MainActivity extends AppCompatActivity implements FragmentSendDataL
                     case R.id.nav_profile:
                         openIntent.setClass(MainActivity.this, UserActivity.class);
                         openIntent.putExtra("fragment", 'p');
+                        startActivity(openIntent);
                         break;
                     case R.id.nav_account_manager:
                         openIntent.setClass(MainActivity.this, UserActivity.class);
                         openIntent.putExtra("fragment", 'a');
+                        startActivity(openIntent);
                         break;
                     case R.id.nav_list:
-
+                        initCostFragment();
                         break;
                     case R.id.nav_map:
-
+                        initMapFragment();
                         break;
                     case R.id.nav_statistic:
                         openIntent.setClass(MainActivity.this, StatisticsActivity.class);
+                        startActivity(openIntent);
                         break;
                     case R.id.nav_settings:
-
                         break;
                     default:
                         Toast.makeText(MainActivity.this, "Nothing selected", Toast.LENGTH_LONG).show();
                 }
-                startActivity(openIntent);
                 drawer.closeDrawer(GravityCompat.START);
                 return true;
             }
@@ -129,7 +141,7 @@ public class MainActivity extends AppCompatActivity implements FragmentSendDataL
         accountBundle.putString("account", spinner.getSelectedItem().toString());
         costsListFragment.setArguments(accountBundle);
         fragmentTransaction = getSupportFragmentManager().beginTransaction();
-        fragmentTransaction.add(R.id.main_container, costsListFragment, "TAG_COSTS_FRAGMENT");
+        fragmentTransaction.replace(R.id.main_container, costsListFragment, "TAG_COSTS_FRAGMENT");
         fragmentTransaction.commit();
     }
 
@@ -138,9 +150,9 @@ public class MainActivity extends AppCompatActivity implements FragmentSendDataL
             getSupportActionBar().hide();
 
         MapsFragment mapsFragment = new MapsFragment();
-
-        FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
-        ft.replace(R.id.main_container, mapsFragment, "TAG_MAP_FRAGMENT").commit();
+        fragmentTransaction = getSupportFragmentManager().beginTransaction();
+        fragmentTransaction.replace(R.id.main_container, mapsFragment, "TAG_MAP_FRAGMENT");
+        fragmentTransaction.commit();
     }
 
     @Override
@@ -148,8 +160,14 @@ public class MainActivity extends AppCompatActivity implements FragmentSendDataL
         if (data > 0) {
             CostsListFragment clf;
             clf = (CostsListFragment) getSupportFragmentManager().findFragmentByTag(fragmentTag);
-            fragmentTransaction = getSupportFragmentManager().beginTransaction();
-            fragmentTransaction.detach(clf).attach(clf).commit();
+            if (spinner.getSelectedItem().toString().equals(getResources().getString(R.string.app_name)))
+                clf.updateDataByDate("", true);
+            else {
+                Bundle ab = new Bundle();
+                ab.putString("account", spinner.getSelectedItem().toString());
+                clf.setArguments(ab);
+                clf.updateDataByDateAccount("", true);
+            }
         } else if (data == -1)
             Toast.makeText(this, "При обробці витрати виникла помилка", Toast.LENGTH_SHORT).show();
     }
