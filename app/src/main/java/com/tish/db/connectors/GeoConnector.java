@@ -27,7 +27,7 @@ public class GeoConnector {
         Geolocation temp;
         db = dbHelper.getReadableDatabase();
         geoCursor = db.rawQuery("select * from " + Geolocations.TABLE_NAME, null);
-        geoCursor.moveToFirst();
+
         while (geoCursor.moveToNext()) {
             temp = new Geolocation();
             temp.setGeoId(geoCursor.getInt(geoCursor.getColumnIndexOrThrow(Geolocations.COLUMN_GEO_ID)));

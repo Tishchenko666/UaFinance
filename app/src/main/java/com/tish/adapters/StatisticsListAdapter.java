@@ -81,9 +81,9 @@ public class StatisticsListAdapter extends ArrayAdapter<StatisticsItem> {
 
 
     private static class StatisticsViewHolder {
-        TextView textViewType;
-        TextView textViewDate;
-        TextView textViewAmount;
-        TextView textViewPercent;
+        static TextView textViewType;
+        static TextView textViewDate;
+        static TextView textViewAmount;
+        static TextView textViewPercent;
     }
 }

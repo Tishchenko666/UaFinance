@@ -48,9 +48,9 @@ public class ProfileFragment extends Fragment {
         genderRadioGroup = view.findViewById(R.id.rg_user_gender);
         genderRadioGroup.check(prefManager.getUserGender());
 
-        startDateTextView = view.findViewById(R.id.tv_user_start_date);
+        startDateTextView = view.findViewById(R.id.tv_start_date);
         startDateTextView.setText(LocalDate.parse(prefManager.getFirstDate()).format(DateTimeFormatter.ofPattern("dd-MM-yyyy")));
-        periodTextView = view.findViewById(R.id.tv_user_working_period);
+        periodTextView = view.findViewById(R.id.tv_working_period);
         periodTextView.setText((LocalDate.now().toEpochDay() - LocalDate.parse(prefManager.getFirstDate()).toEpochDay()) + " днів");
 
         return view;

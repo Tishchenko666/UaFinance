@@ -15,9 +15,10 @@ import android.view.MenuItem;
 import android.widget.Toast;
 
 import com.google.android.material.navigation.NavigationView;
+import com.tish.interfaces.FragmentSendAccountDataListener;
 import com.tish.interfaces.FragmentSendDataListener;
 
-public class UserActivity extends AppCompatActivity implements FragmentSendDataListener {
+public class UserActivity extends AppCompatActivity implements FragmentSendAccountDataListener {
 
     private FragmentTransaction fragmentTransaction;
 
@@ -54,15 +55,18 @@ public class UserActivity extends AppCompatActivity implements FragmentSendDataL
                         openIntent.setClass(UserActivity.this, MainActivity.class);
                         openIntent.putExtra("fragment", 'c');
                         startActivity(openIntent);
+                        finish();
                         break;
                     case R.id.nav_map:
                         openIntent.setClass(UserActivity.this, MainActivity.class);
                         openIntent.putExtra("fragment", 'm');
                         startActivity(openIntent);
+                        finish();
                         break;
                     case R.id.nav_statistic:
                         openIntent.setClass(UserActivity.this, StatisticsActivity.class);
                         startActivity(openIntent);
+                        finish();
                         break;
                     case R.id.nav_settings:
                         break;
@@ -102,12 +106,14 @@ public class UserActivity extends AppCompatActivity implements FragmentSendDataL
 
 
     @Override
-    public void onSendData(long data, String fragmentTag) {
+    public void onSendData(long data, String fragmentTag, char type) {
         if (data > 0) {
-            AccountManagerFragment amf = null;
+            AccountManagerFragment amf;
             amf = (AccountManagerFragment) getSupportFragmentManager().findFragmentByTag(fragmentTag);
-            fragmentTransaction = getSupportFragmentManager().beginTransaction();
-            fragmentTransaction.detach(amf).attach(amf).commit();
+            if (type == 'a')
+                amf.updateAccountList();
+            else
+                initAccountManager();
         } else if (data == -1)
             Toast.makeText(this, "Введений рахунок вже існує", Toast.LENGTH_SHORT).show();
         else if (data == 0)

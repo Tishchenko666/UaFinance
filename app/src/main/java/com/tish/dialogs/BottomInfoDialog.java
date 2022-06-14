@@ -2,6 +2,7 @@ package com.tish.dialogs;
 
 import android.app.AlertDialog;
 import android.app.Dialog;
+import android.content.Context;
 import android.os.Bundle;
 import android.view.Gravity;
 import android.view.View;
@@ -23,23 +24,26 @@ public class BottomInfoDialog extends DialogFragment {
 
     ListView mapCostsListView;
 
+
     @NonNull
     @Override
     public Dialog onCreateDialog(@Nullable Bundle savedInstanceState) {
         Bundle args = getArguments();
         AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
-        View view = getActivity().getLayoutInflater().inflate(R.layout.map_bottom_sheet, null);
+        View view = getLayoutInflater().inflate(R.layout.map_bottom_sheet, null);
 
         TextView title = view.findViewById(R.id.tv_map_bottom_title);
         title.setText(args.getString("title"));
 
         mapCostsListView = view.findViewById(R.id.lv_map_bottom_costs);
+
         CostConnector costConnector = new CostConnector(getContext());
-        List<Cost> costList = costConnector.getCostsByGeoId(args.getInt("tag"));
+        List<Cost> costList = costConnector.getCostsByGeoId((Integer) args.getInt("tag"));
         MapCostsListAdapter adapter = new MapCostsListAdapter(getContext(), costList);
         mapCostsListView.setAdapter(adapter);
 
         builder.setView(view);
+
 
         AlertDialog thisDialog = builder.create();
         thisDialog.getWindow().setGravity(Gravity.BOTTOM);

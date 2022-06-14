@@ -32,6 +32,7 @@ import com.google.android.gms.tasks.Task;
 import com.tish.db.connectors.CostConnector;
 import com.tish.db.connectors.GeoConnector;
 import com.tish.dialogs.BottomInfoDialog;
+import com.tish.models.Cost;
 import com.tish.models.GeoPair;
 import com.tish.models.Geolocation;
 
@@ -59,9 +60,9 @@ public class MapsFragment extends Fragment
             TextView numberValue = mWindow.findViewById(R.id.tv_snippet_number_value);
             TextView amountValue = mWindow.findViewById(R.id.tv_snippet_amount_value);
             GeoPair currentPair = infoSnippetsMap.get(marker.getTag());
-            numberValue.setText(currentPair.getNumber());
-            amountValue.setText(currentPair.getAmount());
-            return null;
+            numberValue.setText(String.valueOf(currentPair.getNumber()));
+            amountValue.setText(String.valueOf(currentPair.getAmount()));
+            return mWindow;
         }
 
         @Nullable
@@ -167,7 +168,7 @@ public class MapsFragment extends Fragment
         bundle.putString("title", marker.getTitle());
         bundle.putInt("tag", (Integer) marker.getTag());
         bottomInfoDialog.setArguments(bundle);
-        bottomInfoDialog.show(getChildFragmentManager(), "bid");
+        bottomInfoDialog.show(getActivity().getSupportFragmentManager(), "bid");
     }
 
     @Override

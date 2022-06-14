@@ -24,14 +24,13 @@ public class AccPhoConnector {
         this.context = context;
     }
 
-    public List<String> getAccounts() {
-        List<String> accountList = new ArrayList<>();
+    public ArrayList<String> getAccounts() {
+        ArrayList<String> accountList = new ArrayList<>();
 
-        accountList.add(String.valueOf(context.getResources().getString(R.string.app_name)));
         db = dbHelper.getReadableDatabase();
         apCursor = db.rawQuery("select * from " + Accounts.TABLE_NAME, null);
         if (apCursor.getCount() > 0) {
-            apCursor.moveToFirst();
+
             while (apCursor.moveToNext()) {
                 accountList.add(apCursor.getString(apCursor.getColumnIndexOrThrow(Accounts.COLUMN_NUMBER)));
             }
@@ -73,7 +72,7 @@ public class AccPhoConnector {
 
     public int getAccountIdByNumber(String number) {
         db = dbHelper.getReadableDatabase();
-        apCursor = db.rawQuery("select " + Accounts.COLUMN_ACCOUNT_ID + " from " + Accounts.TABLE_NAME + " where " + Accounts.COLUMN_NUMBER + "=" + number, null);
+        apCursor = db.rawQuery("select " + Accounts.COLUMN_ACCOUNT_ID + " from " + Accounts.TABLE_NAME + " where " + Accounts.COLUMN_NUMBER + "='" + number + "'", null);
         apCursor.moveToFirst();
         int accountId = -1;
         if (apCursor.getCount() > 0)
@@ -112,7 +111,7 @@ public class AccPhoConnector {
 
     public int deleteAccount(String number) {
         db = dbHelper.getWritableDatabase();
-        int result = db.delete(Accounts.TABLE_NAME, Accounts.COLUMN_NUMBER + "=" + number, null);
+        int result = db.delete(Accounts.TABLE_NAME, Accounts.COLUMN_NUMBER + "='" + number + "'", null);
         db.close();
         return result;
     }

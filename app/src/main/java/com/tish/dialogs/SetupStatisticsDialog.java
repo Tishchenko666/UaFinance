@@ -79,6 +79,7 @@ public class SetupStatisticsDialog extends DialogFragment
     public Dialog onCreateDialog(@Nullable Bundle savedInstanceState) {
         AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
         builder.setTitle("Налаштування статитсики");
+
         setupView = getActivity().getLayoutInflater().inflate(R.layout.setup_statistics_dialog_view, null);
         typeRadioGroup = setupView.findViewById(R.id.rg_type);
         setupDateCheckBox = setupView.findViewById(R.id.cb_setup_date);
@@ -105,6 +106,8 @@ public class SetupStatisticsDialog extends DialogFragment
         periodAmountLayout = setupView.findViewById(R.id.ll_period_amount);
         periodAmountEditText = setupView.findViewById(R.id.et_period_amount);
         periodAmountEditText.setText("1");
+
+        builder.setView(setupView);
 
         builder.setPositiveButton("Зберегти", null);
         builder.setNegativeButton("Відмінити", new DialogInterface.OnClickListener() {

@@ -23,9 +23,9 @@ public class MapCostsListAdapter extends ArrayAdapter<Cost> {
     private List<Cost> costList;
 
     public MapCostsListAdapter(Context context, List<Cost> list) {
-        super(context, R.layout.item_map_list_cost);
+        super(context, R.layout.item_map_list_cost, list);
         this.context = context;
-        this.costList = new ArrayList<>(list);
+        this.costList = list;
     }
 
     @Override
@@ -58,10 +58,10 @@ public class MapCostsListAdapter extends ArrayAdapter<Cost> {
     }
 
     private static class MapCostsViewHolder {
-        ImageView imageViewCategoryIcon;
-        TextView textViewCategory;
-        TextView textViewDate;
-        TextView textViewAmount;
-        TextView textViewMarket;
+        static ImageView imageViewCategoryIcon;
+        static TextView textViewCategory;
+        static TextView textViewDate;
+        static TextView textViewAmount;
+        static TextView textViewMarket;
     }
 }

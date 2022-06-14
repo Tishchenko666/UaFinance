@@ -110,8 +110,12 @@ public class CostsListFragment extends Fragment {
 
         initLists();
 
+        if (!costsExist)
+            costsList = new ArrayList<>();
+
         costsListAdapter = new CostsExpListAdapter(getContext(), costsList);
         costsListView.setAdapter(costsListAdapter);
+
 
         set = new PieDataSet(entries, "Costs");
         set.setColors(colors);
@@ -138,10 +142,17 @@ public class CostsListFragment extends Fragment {
             }
         } else if (costsExist) {
             costsList = costConnector.getCostsByDateAccount(thisYearMonth.toString(), account);
-            entries = costConnector.getTotalAmountsForCategoriesByDateAccount(thisYearMonth.toString(), account);
-            colors = costConnector.getCategoriesColorsByDateAccount(thisYearMonth.toString(), account);
-            for (int i = 0; i < colors.length; i++) {
-                colors[i] = getResources().getColor(colors[i], null);
+            if (costsList.size() > 0) {
+                entries = costConnector.getTotalAmountsForCategoriesByDateAccount(thisYearMonth.toString(), account);
+                colors = costConnector.getCategoriesColorsByDateAccount(thisYearMonth.toString(), account);
+                for (int i = 0; i < colors.length; i++) {
+                    colors[i] = getResources().getColor(colors[i], null);
+                }
+            } else {
+                entries = new ArrayList<>();
+                entries.add(new PieEntry(1));
+                colors = new int[1];
+                colors[0] = getResources().getColor(R.color.bright_blue, null);
             }
         } else {
             entries = new ArrayList<>();
@@ -292,18 +303,20 @@ public class CostsListFragment extends Fragment {
             account = getArguments().getString("account");
 
         costsList = costConnector.getCostsByDateAccount(date, account);
-        entries = costConnector.getTotalAmountsForCategoriesByDateAccount(date, account);
-        colors = costConnector.getCategoriesColorsByDateAccount(date, account);
+        if (costsList.size() > 0) {
+            entries = costConnector.getTotalAmountsForCategoriesByDateAccount(date, account);
+            colors = costConnector.getCategoriesColorsByDateAccount(date, account);
+            for (int i = 0; i < colors.length; i++) {
+                colors[i] = getResources().getColor(colors[i], null);
+            }
+        } else {
+            entries = new ArrayList<>();
+            entries.add(new PieEntry(1));
+            colors = new int[1];
+            colors[0] = getResources().getColor(R.color.bright_blue, null);
+        }
         costsListAdapter.setList(costsList);
         costsListView.setAdapter(costsListAdapter);
-
-
-        entries = costConnector.getTotalAmountsForCategoriesByDateAccount(date, account);
-        colors = costConnector.getCategoriesColorsByDateAccount(date, account);
-
-        for (int i = 0; i < colors.length; i++) {
-            colors[i] = getResources().getColor(colors[i], null);
-        }
 
 
         set.setValues(entries);

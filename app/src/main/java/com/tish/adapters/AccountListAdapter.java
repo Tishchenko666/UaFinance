@@ -15,6 +15,7 @@ import androidx.fragment.app.FragmentManager;
 import com.tish.R;
 import com.tish.dialogs.AccountDialog;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class AccountListAdapter extends ArrayAdapter<String> {
@@ -23,12 +24,13 @@ public class AccountListAdapter extends ArrayAdapter<String> {
     private List<String> accountList;
     private FragmentManager activityFragmentManager;
 
-    public AccountListAdapter(Context context, List<String> accountList, FragmentManager fragmentManager) {
+    public AccountListAdapter(Context context, ArrayList<String> accountList, FragmentManager fragmentManager) {
         super(context, R.layout.item_account, accountList);
         this.context = context;
         this.accountList = accountList;
         this.activityFragmentManager = fragmentManager;
     }
+
 
     @NonNull
     @Override
@@ -58,7 +60,7 @@ public class AccountListAdapter extends ArrayAdapter<String> {
     }
 
     private static class AccountViewHolder {
-        TextView textViewNumber;
-        ImageButton buttonEditAccount;
+        static TextView textViewNumber;
+        static ImageButton buttonEditAccount;
     }
 }

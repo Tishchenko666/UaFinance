@@ -16,11 +16,12 @@ import androidx.fragment.app.DialogFragment;
 
 import com.tish.R;
 import com.tish.db.connectors.AccPhoConnector;
+import com.tish.interfaces.FragmentSendAccountDataListener;
 import com.tish.interfaces.FragmentSendDataListener;
 
 public class AccountDialog extends DialogFragment {
 
-    private FragmentSendDataListener sendResult;
+    private FragmentSendAccountDataListener sendResult;
 
     EditText accountEditText;
 
@@ -37,7 +38,7 @@ public class AccountDialog extends DialogFragment {
     public void onAttach(Context context) {
         super.onAttach(context);
         try {
-            sendResult = (FragmentSendDataListener) context;
+            sendResult = (FragmentSendAccountDataListener) context;
         } catch (ClassCastException e) {
             throw new ClassCastException(context.toString()
                     + " должен реализовывать интерфейс OnFragmentInteractionListener");
@@ -89,7 +90,7 @@ public class AccountDialog extends DialogFragment {
                                     result = accountConnector.insertAccount(number);
                             }
 
-                            sendResult.onSendData(result, "TAG_AM_FRAGMENT");
+                            sendResult.onSendData(result, "TAG_AM_FRAGMENT", getTag().equals("ead") ? 'e' : 'a');
                             thisDialog.dismiss();
                         }
                     }

@@ -9,6 +9,7 @@ import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.ListView;
 import android.widget.Spinner;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -64,7 +65,7 @@ public class StatisticsActivity extends AppCompatActivity implements FragmentSen
         Toolbar toolbar = findViewById(R.id.no_spinner_toolbar_view);
         setSupportActionBar(toolbar);
         getSupportActionBar().setTitle("Статистика");
-        //getSupportActionBar().setDisplayShowTitleEnabled(false);
+        getSupportActionBar().setDisplayShowTitleEnabled(false);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
     }
 
@@ -75,7 +76,7 @@ public class StatisticsActivity extends AppCompatActivity implements FragmentSen
 
         YearMonth thisYearMonth = YearMonth.now();
         List<YearMonth> dateList = costConnector.getCostDates(1);
-        if (!dateList.get(dateList.size() - 1).equals(thisYearMonth)) {
+        if (!dateList.contains(thisYearMonth)) {
             dateList.add(0, thisYearMonth);
         }
         List<String> spinnerDatesList = dateList.stream().map(YearMonth::toString).collect(Collectors.toList());
@@ -95,19 +96,19 @@ public class StatisticsActivity extends AppCompatActivity implements FragmentSen
                             if (selectedId == 0) {
                                 initList("", 'c');
                             } else
-                                initList(dateList.get(selectedId).toString(), 'c');
+                                initList(spinnerDatesList.get(selectedId).toString(), 'c');
                             break;
                         case R.id.rb_market:
                             if (selectedId == 0) {
                                 initList("", 'm');
                             } else
-                                initList(dateList.get(selectedId).toString(), 'm');
+                                initList(spinnerDatesList.get(selectedId).toString(), 'm');
                             break;
                         case R.id.rb_geo:
                             if (selectedId == 0) {
                                 initList("", 'g');
                             } else
-                                initList(dateList.get(selectedId).toString(), 'g');
+                                initList(spinnerDatesList.get(selectedId).toString(), 'g');
                             break;
                     }
                 } else {
@@ -150,12 +151,18 @@ public class StatisticsActivity extends AppCompatActivity implements FragmentSen
                             break;
                     }
 
-                    if (dateSettingsMap.get("dateType").equals("y"))
-                        statisticsAdapter = new StatisticsListAdapter(StatisticsActivity.this, dateStatisticsList, true);
-                    else
-                        statisticsAdapter = new StatisticsListAdapter(StatisticsActivity.this, dateStatisticsList, dateSettingsMap.get("dateType"));
+                    if (dateStatisticsList.size() > 0) {
+                        if (dateSettingsMap.get("dateType").equals("y"))
+                            statisticsAdapter = new StatisticsListAdapter(StatisticsActivity.this, dateStatisticsList, true);
+                        else
+                            statisticsAdapter = new StatisticsListAdapter(StatisticsActivity.this, dateStatisticsList, dateSettingsMap.get("dateType"));
 
-                    statisticsListView.setAdapter(statisticsAdapter);
+                        statisticsListView.setAdapter(statisticsAdapter);
+                        statisticsListView.setVisibility(View.VISIBLE);
+                    } else {
+                        statisticsListView.setVisibility(View.INVISIBLE);
+                        Toast.makeText(StatisticsActivity.this, "Дані для отримання статистики відсутні", Toast.LENGTH_SHORT).show();
+                    }
                 }
             }
         });
@@ -179,8 +186,14 @@ public class StatisticsActivity extends AppCompatActivity implements FragmentSen
                 break;
         }
 
-        statisticsAdapter = new StatisticsListAdapter(StatisticsActivity.this, statisticsList, false);
-        statisticsListView.setAdapter(statisticsAdapter);
+        if (statisticsList.size() > 0) {
+            statisticsAdapter = new StatisticsListAdapter(StatisticsActivity.this, statisticsList, false);
+            statisticsListView.setAdapter(statisticsAdapter);
+            statisticsListView.setVisibility(View.VISIBLE);
+        } else {
+            statisticsListView.setVisibility(View.INVISIBLE);
+            Toast.makeText(StatisticsActivity.this, "Дані для отримання статистики відсутні", Toast.LENGTH_SHORT).show();
+        }
     }
 
     @Override
@@ -223,11 +236,11 @@ public class StatisticsActivity extends AppCompatActivity implements FragmentSen
                 SetupStatisticsDialog setupStatisticsDialog = new SetupStatisticsDialog(StatisticsActivity.this);
                 setupStatisticsDialog.show(getSupportFragmentManager(), "ssd");
                 break;
-            case R.id.item_change_type_statistics:
+            //case R.id.item_change_type_statistics:
                 //describe
-                break;
+               // break;
         }
-        return true;
+        return super.onOptionsItemSelected(item);
     }
 
     @Override

@@ -4,6 +4,7 @@ import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 
+import com.tish.db.bases.Category;
 import com.tish.db.bases.DBContract.Costs;
 import com.tish.db.bases.DBContract.Geolocations;
 import com.tish.db.bases.DBHelper;
@@ -38,13 +39,16 @@ public class StatisticsConnector {
         statisticsCursor = db.rawQuery(query + ", sum(" + Costs.COLUMN_AMOUNT + "), "
                 + "round(sum(" + Costs.COLUMN_AMOUNT + ")/(select sum(" + Costs.COLUMN_AMOUNT + ") from " + Costs.TABLE_NAME + ")*100, 2) "
                 + "from " + Costs.TABLE_NAME + group, null);
-        statisticsCursor.moveToFirst();
+
         int column = 0;
         while (statisticsCursor.moveToNext()) {
             String category = statisticsCursor.getString(column);
             double amount = statisticsCursor.getDouble(column + 1);
             double percent = statisticsCursor.getDouble(column + 2);
-            itemList.add(new StatisticsItem(category, amount, percent));
+            if (type == 'm')
+                itemList.add(new StatisticsItem(category, -amount, percent));
+            else
+                itemList.add(new StatisticsItem(Category.valueOf(category).getCategoryName(), -amount, percent));
         }
         statisticsCursor.close();
         db.close();
@@ -67,13 +71,16 @@ public class StatisticsConnector {
                 + "round(sum(" + Costs.COLUMN_AMOUNT + ")/(select sum(" + Costs.COLUMN_AMOUNT + ") from " + Costs.TABLE_NAME + " where " + Costs.COLUMN_DATE + " like '" + currentDate + "%')*100, 2) "
                 + "from " + Costs.TABLE_NAME + " where " + Costs.COLUMN_DATE + " like '" + currentDate + "%'"
                 + group, null);
-        statisticsCursor.moveToFirst();
+
         int column = 0;
         while (statisticsCursor.moveToNext()) {
             String category = statisticsCursor.getString(column);
             double amount = statisticsCursor.getDouble(column + 1);
             double percent = statisticsCursor.getDouble(column + 2);
-            itemList.add(new StatisticsItem(category, amount, percent));
+            if (type == 'm')
+                itemList.add(new StatisticsItem(category, -amount, percent));
+            else
+                itemList.add(new StatisticsItem(Category.valueOf(category).getCategoryName(), -amount, percent));
         }
         statisticsCursor.close();
         db.close();
@@ -89,13 +96,13 @@ public class StatisticsConnector {
                 + "from " + Costs.TABLE_NAME + " as c inner join " + Geolocations.TABLE_NAME + " as g "
                 + "on c." + Costs.COLUMN_GEO_ID + " = g." + Geolocations.COLUMN_GEO_ID
                 + " group by c." + Costs.COLUMN_GEO_ID, null);
-        statisticsCursor.moveToFirst();
+
         int column = 0;
         while (statisticsCursor.moveToNext()) {
             String address = statisticsCursor.getString(column);
             double amount = statisticsCursor.getDouble(column + 1);
             double percent = statisticsCursor.getDouble(column + 2);
-            itemList.add(new StatisticsItem(address, amount, percent));
+            itemList.add(new StatisticsItem(address, -amount, percent));
         }
         statisticsCursor.close();
         db.close();
@@ -112,13 +119,13 @@ public class StatisticsConnector {
                 + "on c." + Costs.COLUMN_GEO_ID + " = g." + Geolocations.COLUMN_GEO_ID
                 + " where c." + Costs.COLUMN_DATE + " like '" + currentDate + "%'"
                 + " group by c." + Costs.COLUMN_GEO_ID, null);
-        statisticsCursor.moveToFirst();
-        int column = statisticsCursor.getColumnIndexOrThrow(Costs.COLUMN_CATEGORY);
+
+        int column = 0;
         while (statisticsCursor.moveToNext()) {
-            String category = statisticsCursor.getString(column);
+            String address = statisticsCursor.getString(column);
             double amount = statisticsCursor.getDouble(column + 1);
             double percent = statisticsCursor.getDouble(column + 2);
-            itemList.add(new StatisticsItem(category, amount, percent));
+            itemList.add(new StatisticsItem(address, -amount, percent));
         }
         statisticsCursor.close();
         db.close();
@@ -141,13 +148,16 @@ public class StatisticsConnector {
 
         statisticsCursor = db.rawQuery(query + ", sum(" + Costs.COLUMN_AMOUNT + ") "
                 + "from " + Costs.TABLE_NAME + group, null);
-        statisticsCursor.moveToFirst();
+
         int column = 0;
         while (statisticsCursor.moveToNext()) {
             String category = statisticsCursor.getString(column);
             String date = statisticsCursor.getString(column + 1);
             double amount = statisticsCursor.getDouble(column + 2);
-            itemList.add(new StatisticsItem(category, date, amount));
+            if (type == 'm')
+                itemList.add(new StatisticsItem(category, date, -amount));
+            else
+                itemList.add(new StatisticsItem(Category.valueOf(category).getCategoryName(), date, -amount));
         }
         statisticsCursor.close();
         db.close();
@@ -160,7 +170,7 @@ public class StatisticsConnector {
         StringBuilder query = new StringBuilder("select ");
         StringBuilder monthDateForm = new StringBuilder(", strftime('%Y-%m', date)");
         StringBuilder seasonDateForm = new StringBuilder(", strftime('%Y', date)");
-        StringBuilder where = new StringBuilder("where strftime('%m', date) ");
+        StringBuilder where = new StringBuilder(" where strftime('%m', date) ");
         StringBuilder group = new StringBuilder(" group by ");
         if (type == 'm') {
             query.append(Costs.COLUMN_MARKET_NAME);
@@ -185,13 +195,16 @@ public class StatisticsConnector {
 
         statisticsCursor = db.rawQuery(query + ", sum(" + Costs.COLUMN_AMOUNT + ") "
                 + "from " + Costs.TABLE_NAME + where + group, null);
-        statisticsCursor.moveToFirst();
+
         int column = 0;
         while (statisticsCursor.moveToNext()) {
             String category = statisticsCursor.getString(column);
             String date = statisticsCursor.getString(column + 1);
             double amount = statisticsCursor.getDouble(column + 2);
-            itemList.add(new StatisticsItem(category, date, amount));
+            if (type == 'm')
+                itemList.add(new StatisticsItem(category, date, -amount));
+            else
+                itemList.add(new StatisticsItem(Category.valueOf(category).getCategoryName(), date, -amount));
         }
         statisticsCursor.close();
         db.close();
@@ -208,13 +221,13 @@ public class StatisticsConnector {
                 + "from " + Costs.TABLE_NAME + " as c inner join " + Geolocations.TABLE_NAME + " as g "
                 + "on c." + Costs.COLUMN_GEO_ID + " = g." + Geolocations.COLUMN_GEO_ID
                 + " group by c." + Costs.COLUMN_GEO_ID + ", " + dateForm, null);
-        statisticsCursor.moveToFirst();
+
         int column = 0;
         while (statisticsCursor.moveToNext()) {
             String address = statisticsCursor.getString(column);
             String date = statisticsCursor.getString(column + 1);
             double amount = statisticsCursor.getDouble(column + 2);
-            itemList.add(new StatisticsItem(address, date, amount));
+            itemList.add(new StatisticsItem(address, date, -amount));
         }
         statisticsCursor.close();
         db.close();
@@ -226,9 +239,9 @@ public class StatisticsConnector {
         db = dbHelper.getReadableDatabase();
         StringBuilder query = new StringBuilder("select g.");
         query.append(Geolocations.COLUMN_ADDRESS).append("|| ', ' || g.").append(Geolocations.COLUMN_CITY).append(", ");
-        StringBuilder monthDateForm = new StringBuilder(", strftime('%Y-%m', c.date)");
-        StringBuilder seasonDateForm = new StringBuilder(", strftime('%Y', c.date)");
-        StringBuilder where = new StringBuilder("where strftime('%m', c.date) ");
+        StringBuilder monthDateForm = new StringBuilder(" strftime('%Y-%m', c.date)");
+        StringBuilder seasonDateForm = new StringBuilder(" strftime('%Y', c.date)");
+        StringBuilder where = new StringBuilder(" where strftime('%m', c.date) ");
         StringBuilder group = new StringBuilder(" group by c.");
         group.append(Costs.COLUMN_GEO_ID).append(", ");
 
@@ -248,13 +261,12 @@ public class StatisticsConnector {
         statisticsCursor = db.rawQuery(query + ", sum(c." + Costs.COLUMN_AMOUNT + ") "
                 + "from " + Costs.TABLE_NAME + " as c inner join " + Geolocations.TABLE_NAME + " as g "
                 + "on c." + Costs.COLUMN_GEO_ID + " = g." + Geolocations.COLUMN_GEO_ID + where + group, null);
-        statisticsCursor.moveToFirst();
         int column = 0;
         while (statisticsCursor.moveToNext()) {
             String address = statisticsCursor.getString(column);
             String date = statisticsCursor.getString(column + 1);
             double amount = statisticsCursor.getDouble(column + 2);
-            itemList.add(new StatisticsItem(address, date, amount));
+            itemList.add(new StatisticsItem(address, date, -amount));
         }
         statisticsCursor.close();
         db.close();
@@ -277,7 +289,6 @@ public class StatisticsConnector {
         }
         db = dbHelper.getReadableDatabase();
         statisticsCursor = db.rawQuery(query.toString(), null);
-        statisticsCursor.moveToFirst();
         while (statisticsCursor.moveToNext()) {
             datesList.add(statisticsCursor.getString(0));
         }

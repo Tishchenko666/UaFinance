@@ -162,7 +162,7 @@ public class EditCostDialog extends DialogFragment {
 
         AccPhoConnector accPhoConnector = new AccPhoConnector(context);
         List<String> accountList = accPhoConnector.getAccounts();
-        accountList.set(0, "Без рахунку");
+        accountList.add(0, "Без рахунку");
         ArrayAdapter<String> accountAdapter = new ArrayAdapter<String>(context, android.R.layout.simple_spinner_item, accountList);
         accountAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         accountSpinner.setAdapter(accountAdapter);

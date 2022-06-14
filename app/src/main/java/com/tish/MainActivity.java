@@ -50,23 +50,23 @@ public class MainActivity extends AppCompatActivity implements FragmentSendDataL
         spinner = findViewById(R.id.toolbar_spinner_account);
         AccPhoConnector accPhoConnector = new AccPhoConnector(this);
         List<String> accountList = accPhoConnector.getAccounts();
+        accountList.add(0, getResources().getString(R.string.app_name));
         ArrayAdapter<String> adapter = new ArrayAdapter<String>(this, android.R.layout.simple_spinner_item, accountList);
         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         spinner.setAdapter(adapter);
-        spinner.setSelection(0);
+        //spinner.setSelection(0);
         spinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> adapterView, View view, int position, long l) {
-                Bundle ab = new Bundle();
-                ab.putString("account", accountList.get(position));
-                CostsListFragment clf;
-                clf = (CostsListFragment) getSupportFragmentManager().findFragmentByTag("TAG_COSTS_FRAGMENT");
-                fragmentTransaction = getSupportFragmentManager().beginTransaction();
-                fragmentTransaction.detach(clf).commit();
-                clf.getArguments().clear();
-                clf.setArguments(ab);
-                fragmentTransaction = getSupportFragmentManager().beginTransaction();
-                fragmentTransaction.attach(clf).commit();
+                CostsListFragment clf = (CostsListFragment) getSupportFragmentManager().findFragmentByTag("TAG_COSTS_FRAGMENT");
+                if (position > 0) {
+                    Bundle ab = new Bundle();
+                    ab.putString("account", accountList.get(position));
+                    clf.getArguments().clear();
+                    clf.setArguments(ab);
+                    clf.updateDataByDateAccount("", true);
+                } else
+                    initCostFragment();
             }
 
             @Override
@@ -107,11 +107,13 @@ public class MainActivity extends AppCompatActivity implements FragmentSendDataL
                         openIntent.setClass(MainActivity.this, UserActivity.class);
                         openIntent.putExtra("fragment", 'p');
                         startActivity(openIntent);
+                        finish();
                         break;
                     case R.id.nav_account_manager:
                         openIntent.setClass(MainActivity.this, UserActivity.class);
                         openIntent.putExtra("fragment", 'a');
                         startActivity(openIntent);
+                        finish();
                         break;
                     case R.id.nav_list:
                         initCostFragment();
@@ -122,6 +124,7 @@ public class MainActivity extends AppCompatActivity implements FragmentSendDataL
                     case R.id.nav_statistic:
                         openIntent.setClass(MainActivity.this, StatisticsActivity.class);
                         startActivity(openIntent);
+                        finish();
                         break;
                     case R.id.nav_settings:
                         break;
@@ -136,6 +139,9 @@ public class MainActivity extends AppCompatActivity implements FragmentSendDataL
     }
 
     private void initCostFragment() {
+        if (getSupportActionBar() != null)
+            getSupportActionBar().show();
+
         CostsListFragment costsListFragment = new CostsListFragment();
         Bundle accountBundle = new Bundle();
         accountBundle.putString("account", spinner.getSelectedItem().toString());
@@ -185,7 +191,7 @@ public class MainActivity extends AppCompatActivity implements FragmentSendDataL
                 AddCostDialog addCostDialog = new AddCostDialog(MainActivity.this);
                 addCostDialog.show(getSupportFragmentManager(), "acd");
                 break;
-            case R.id.item_change_type:
+            //case R.id.item_change_type:
                 //describe
         }
         return true;
