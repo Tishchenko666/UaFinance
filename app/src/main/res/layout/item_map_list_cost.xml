@@ -5,8 +5,8 @@
 
     <ImageView
         android:id="@+id/iv_map_category_icon"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        android:layout_width="30dp"
+        android:layout_height="30dp"
         android:layout_alignParentStart="true"
         android:layout_centerVertical="true" />
 
@@ -18,7 +18,7 @@
         android:gravity="start|center"
         android:textAlignment="gravity"
         android:textColor="@color/black"
-        android:textSize="18sp" />
+        android:textSize="15sp" />
 
     <TextView
         android:id="@+id/tv_map_market"
@@ -30,7 +30,7 @@
         android:gravity="start|center"
         android:textAlignment="gravity"
         android:textColor="@color/black"
-        android:textSize="18sp" />
+        android:textSize="15sp" />
 
     <TextView
         android:id="@+id/tv_map_date"
@@ -41,7 +41,7 @@
         android:gravity="start|center"
         android:textAlignment="gravity"
         android:textColor="@color/black"
-        android:textSize="18sp" />
+        android:textSize="15sp" />
 
     <TextView
         android:id="@+id/tv_map_amount"
@@ -52,5 +52,5 @@
         android:gravity="end|center"
         android:textAlignment="gravity"
         android:textColor="@color/black"
-        android:textSize="20sp" />
+        android:textSize="18sp" />
 </RelativeLayout>

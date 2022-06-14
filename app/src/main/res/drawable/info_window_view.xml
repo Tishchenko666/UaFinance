@@ -5,4 +5,5 @@
         android:width="3dp"
         android:color="@color/bright_blue" />
     <solid android:color="@color/white" />
+
 </shape>

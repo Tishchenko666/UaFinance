@@ -6,10 +6,11 @@
         android:icon="@drawable/ic_add_record"
         android:title="@string/item_add_record"
         app:showAsAction="always" />
-    <item
+    <!--<item
         android:id="@+id/item_change_type"
         android:icon="@drawable/ic_change_type"
         android:title="@string/item_change_type"
-        app:showAsAction="ifRoom" />
+        app:showAsAction="ifRoom" />-->
+
 
 </menu>

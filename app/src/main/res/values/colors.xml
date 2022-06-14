@@ -14,7 +14,6 @@
     <color name="transparent">#00000000</color>
     <color name="red">#FB0A0A</color>
 
-    <!--colors for categories-->
     <color name="food">#0AC2F1</color>
     <color name="health">#4ACCC1</color>
     <color name="home">#109A16</color>
@@ -32,5 +31,5 @@
     <color name="children">#E18D11</color>
     <color name="pets">#84E1E4</color>
     <color name="makeup">#BF1BDC</color>
-    <color name="other">#CCCBCA</color>
+    <color name="other">#F4DAC0</color>
 </resources>
