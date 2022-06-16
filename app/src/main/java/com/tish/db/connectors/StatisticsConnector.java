@@ -199,6 +199,8 @@ public class StatisticsConnector {
         int column = 0;
         while (statisticsCursor.moveToNext()) {
             String category = statisticsCursor.getString(column);
+            if (category == null)
+                category = "Місце невідоме";
             String date = statisticsCursor.getString(column + 1);
             double amount = statisticsCursor.getDouble(column + 2);
             if (type == 'm')

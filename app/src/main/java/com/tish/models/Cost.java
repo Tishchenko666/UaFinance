@@ -4,6 +4,7 @@ import com.tish.db.bases.Category;
 
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
+import java.util.Comparator;
 
 public class Cost {
     private int costId;
@@ -174,4 +175,11 @@ public class Cost {
         if (photoAddress != null)
             setPhotoExists(true);
     }
+
+    public static final Comparator<Cost> COST_COMPARATOR = new Comparator<Cost>() {
+        @Override
+        public int compare(Cost o1, Cost o2) {
+            return Double.compare(o1.getAmount(), o2.getAmount());
+        }
+    };
 }

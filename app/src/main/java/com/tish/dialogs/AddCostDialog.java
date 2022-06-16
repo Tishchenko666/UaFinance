@@ -50,7 +50,7 @@ import java.util.List;
 import java.util.Locale;
 
 public class AddCostDialog extends DialogFragment
-        implements CompoundButton.OnCheckedChangeListener, View.OnClickListener {
+        implements CompoundButton.OnCheckedChangeListener/*, View.OnClickListener*/ {
 
     private FragmentSendDataListener sendInsertResult;
 
@@ -65,12 +65,12 @@ public class AddCostDialog extends DialogFragment
     Spinner categorySpinner;
     Spinner accountSpinner;
 
-    ImageButton makePhotoImageButton;
+    // ImageButton makePhotoImageButton;
 
     TextView errorTextView;
 
     CostConnector costConnector;
-    PhotoManager photoManager;
+    // PhotoManager photoManager;
 
     String dateRegexDayYear;
     String dateRegexYearDay;
@@ -78,12 +78,12 @@ public class AddCostDialog extends DialogFragment
     Context context;
 
     boolean canBeSaved = true;
-    String photoAddress;
+    //String photoAddress;
 
     public AddCostDialog(Context context) {
         this.context = context;
         costConnector = new CostConnector(context);
-        photoManager = new PhotoManager(context);
+        //photoManager = new PhotoManager(context);
         dateRegexDayYear = "[0-3][0-9][-./][0-1][0-9][-./][0-9]{4}";
         dateRegexYearDay = "[0-9]{4}[-./][0-1][0-9][-./][0-3][0-9]";
     }
@@ -116,8 +116,8 @@ public class AddCostDialog extends DialogFragment
         categorySpinner = addCostView.findViewById(R.id.spinner_cost_category);
         accountSpinner = addCostView.findViewById(R.id.spinner_cost_account);
         fillSpinners();
-        makePhotoImageButton = addCostView.findViewById(R.id.ib_make_photo);
-        makePhotoImageButton.setOnClickListener(this);
+        // makePhotoImageButton = addCostView.findViewById(R.id.ib_make_photo);
+        // makePhotoImageButton.setOnClickListener(this);
         errorTextView = addCostView.findViewById(R.id.tv_cost_error);
         builder.setView(addCostView);
         builder.setPositiveButton("Зберегти", null);
@@ -216,7 +216,7 @@ public class AddCostDialog extends DialogFragment
                                 canBeSaved = true;
                             }
                             //describe photo adding
-                            newCost.setPhotoAddress(photoAddress);
+                            //newCost.setPhotoAddress(photoAddress);
 
                             if (canBeSaved) {
                                 long insertResult = costConnector.insertNewCost(newCost);
@@ -261,7 +261,7 @@ public class AddCostDialog extends DialogFragment
         }
     }
 
-    @Override
+   /* @Override
     public void onClick(View view) {
         Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
         myCameraRegister.launch(intent);
@@ -285,5 +285,5 @@ public class AddCostDialog extends DialogFragment
                         }
                     }
                 }
-            });
+            });*/
 }

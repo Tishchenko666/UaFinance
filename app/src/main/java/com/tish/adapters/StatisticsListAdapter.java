@@ -17,6 +17,7 @@ public class StatisticsListAdapter extends ArrayAdapter<StatisticsItem> {
     private Context context;
     private List<StatisticsItem> statisticsList;
     private String dateType;
+    String dateContent;
     private boolean withYear;
 
     public StatisticsListAdapter(Context context, List<StatisticsItem> statisticsList, boolean withYear) {
@@ -24,14 +25,16 @@ public class StatisticsListAdapter extends ArrayAdapter<StatisticsItem> {
         this.context = context;
         this.statisticsList = statisticsList;
         this.dateType = "";
+        this.dateContent = "";
         this.withYear = withYear;
     }
 
-    public StatisticsListAdapter(Context context, List<StatisticsItem> statisticsList, String dateType) {
+    public StatisticsListAdapter(Context context, List<StatisticsItem> statisticsList, String dateType, String dateContent) {
         super(context, R.layout.item_statistics_with_date, statisticsList);
         this.context = context;
         this.statisticsList = statisticsList;
         this.dateType = dateType;
+        this.dateContent = dateContent;
         this.withYear = false;
 
     }
@@ -50,7 +53,7 @@ public class StatisticsListAdapter extends ArrayAdapter<StatisticsItem> {
                 view = LayoutInflater.from(context).inflate(R.layout.item_statistics_with_date, parent, false);
                 viewHolder.textViewType = view.findViewById(R.id.tv_statistics_type_d);
                 viewHolder.textViewDate = view.findViewById(R.id.tv_statistics_date_d);
-                viewHolder.textViewAmount = view.findViewById(R.id.tv_statistics_amount);
+                viewHolder.textViewAmount = view.findViewById(R.id.tv_statistics_amount_d);
             }
             view.setTag(viewHolder);
         } else {
@@ -68,7 +71,7 @@ public class StatisticsListAdapter extends ArrayAdapter<StatisticsItem> {
                 viewHolder.textViewAmount.setText(String.valueOf(item.getAmount()));
             } else if (dateType.equals("s")) {
                 viewHolder.textViewType.setText(item.getTypeName());
-                viewHolder.textViewDate.setText(item.getStatisticsDate());
+                viewHolder.textViewDate.setText(dateContent + ", " + item.getStatisticsDate());
                 viewHolder.textViewAmount.setText(String.valueOf(item.getAmount()));
             } else {
                 viewHolder.textViewType.setText(item.getTypeName());

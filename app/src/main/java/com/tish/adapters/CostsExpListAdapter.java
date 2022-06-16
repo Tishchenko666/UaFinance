@@ -7,13 +7,10 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseExpandableListAdapter;
-import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import com.tish.MainActivity;
 import com.tish.R;
-import com.tish.dialogs.GetPhotoDialog;
 import com.tish.models.Cost;
 
 import java.util.ArrayList;
@@ -22,16 +19,16 @@ import java.util.List;
 public class CostsExpListAdapter extends BaseExpandableListAdapter {
 
     private Context context;
-    private List<Cost> costList;
+    private List<Cost> adapterCostList;
 
     public CostsExpListAdapter(Context context, ArrayList<Cost> list) {
         this.context = context;
-        this.costList = list;
+        this.adapterCostList = list;
     }
 
     public void setList(ArrayList<Cost> list) {
-        this.costList.clear();
-        this.costList = list;
+        this.adapterCostList.clear();
+        this.adapterCostList = new ArrayList<>(list);
         notifyDataSetChanged();
     }
 
@@ -44,7 +41,7 @@ public class CostsExpListAdapter extends BaseExpandableListAdapter {
         TextView textViewCategory = view.findViewById(R.id.tv_category);
         TextView textViewAmount = view.findViewById(R.id.tv_amount);
 
-        Cost cost = costList.get(groupPosition);
+        Cost cost = adapterCostList.get(groupPosition);
 
         imageViewCategoryIcon.setImageResource(cost.getCategory().getIconResource());
         ShapeDrawable sd = new ShapeDrawable(new OvalShape());
@@ -66,10 +63,10 @@ public class CostsExpListAdapter extends BaseExpandableListAdapter {
         TextView textViewMarketName = view.findViewById(R.id.tv_market_name);
         TextView textViewDate = view.findViewById(R.id.tv_date);
         TextView textViewGeo = view.findViewById(R.id.tv_geo);
-        ImageView imageButtonPhoto = view.findViewById(R.id.ib_photo);
+        //ImageView imageButtonPhoto = view.findViewById(R.id.ib_photo);
 
 
-        Cost cost = costList.get(groupPosition);
+        Cost cost = adapterCostList.get(groupPosition);
 
         if (cost.getMarketName() != null)
             textViewMarketName.setText(cost.getMarketName());
@@ -81,7 +78,7 @@ public class CostsExpListAdapter extends BaseExpandableListAdapter {
         if (cost.getGeo() != null)
             textViewGeo.setText(String.format("%s, %s", cost.getGeo().getAddress(), cost.getGeo().getCity()));
 
-        if (cost.isPhotoExists())
+        /*if (cost.isPhotoExists())
             imageButtonPhoto.setImageResource(R.drawable.icon_cheque_is);
         else
             imageButtonPhoto.setImageResource(R.drawable.icon_no_cheque);
@@ -97,14 +94,14 @@ public class CostsExpListAdapter extends BaseExpandableListAdapter {
                     addPhotoDialog.show(((MainActivity) context).getSupportFragmentManager(), "apd");
                 }
             }
-        });
+        });*/
         return view;
     }
 
 
     @Override
     public int getGroupCount() {
-        return costList.size();
+        return adapterCostList.size();
     }
 
     @Override
@@ -114,12 +111,12 @@ public class CostsExpListAdapter extends BaseExpandableListAdapter {
 
     @Override
     public Cost getGroup(int groupPosition) {
-        return costList.get(groupPosition);
+        return adapterCostList.get(groupPosition);
     }
 
     @Override
     public Object getChild(int groupPosition, int childPosition) {
-        return costList.get(groupPosition);
+        return adapterCostList.get(groupPosition);
     }
 
     @Override

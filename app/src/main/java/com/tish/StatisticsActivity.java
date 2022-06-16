@@ -155,7 +155,8 @@ public class StatisticsActivity extends AppCompatActivity implements FragmentSen
                         if (dateSettingsMap.get("dateType").equals("y"))
                             statisticsAdapter = new StatisticsListAdapter(StatisticsActivity.this, dateStatisticsList, true);
                         else
-                            statisticsAdapter = new StatisticsListAdapter(StatisticsActivity.this, dateStatisticsList, dateSettingsMap.get("dateType"));
+                            statisticsAdapter = new StatisticsListAdapter(StatisticsActivity.this, dateStatisticsList,
+                                    dateSettingsMap.get("dateType"), Season.values()[Integer.parseInt(dateSettingsMap.get("dateContent"))].getName());
 
                         statisticsListView.setAdapter(statisticsAdapter);
                         statisticsListView.setVisibility(View.VISIBLE);
@@ -237,8 +238,8 @@ public class StatisticsActivity extends AppCompatActivity implements FragmentSen
                 setupStatisticsDialog.show(getSupportFragmentManager(), "ssd");
                 break;
             //case R.id.item_change_type_statistics:
-                //describe
-               // break;
+            //describe
+            // break;
         }
         return super.onOptionsItemSelected(item);
     }

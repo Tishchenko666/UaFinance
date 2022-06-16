@@ -4,6 +4,8 @@ import android.annotation.SuppressLint;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.content.Intent;
+import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
@@ -12,10 +14,15 @@ import android.graphics.drawable.ShapeDrawable;
 import android.graphics.drawable.shapes.OvalShape;
 import android.os.Bundle;
 
+import androidx.activity.result.ActivityResult;
+import androidx.activity.result.ActivityResultCallback;
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 
+import android.provider.MediaStore;
 import android.view.ContextMenu;
 import android.view.ContextMenu.ContextMenuInfo;
 import android.view.Gravity;
@@ -44,6 +51,7 @@ import com.github.mikephil.charting.data.PieEntry;
 import com.github.mikephil.charting.highlight.Highlight;
 import com.github.mikephil.charting.listener.OnChartValueSelectedListener;
 import com.tish.adapters.CostsExpListAdapter;
+import com.tish.db.bases.PhotoManager;
 import com.tish.db.bases.UkrainianMonth;
 import com.tish.db.connectors.CostConnector;
 import com.tish.dialogs.EditCostDialog;
@@ -54,6 +62,7 @@ import com.tish.models.Cost;
 
 import java.time.YearMonth;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 
@@ -85,8 +94,8 @@ public class CostsListFragment extends Fragment {
     PieDataSet set;
     PieData data;
 
-
     boolean costsExist = false;
+    ArrayList<Cost> sortedCostsList;
 
 
     @Override
@@ -329,8 +338,33 @@ public class CostsListFragment extends Fragment {
         chart.invalidate();
     }
 
+    void sortCostList(int type) {
+        if (costsList.size() > 0)
+            sortedCostsList = new ArrayList<>(costsList);
+        switch (type) {
+            case -1:
+                Collections.sort(sortedCostsList, Collections.reverseOrder(Cost.COST_COMPARATOR));
+                costsListAdapter.setList(sortedCostsList);
+                costsListView.setAdapter(costsListAdapter);
+                break;
+            case 1:
+                Collections.sort(sortedCostsList, Cost.COST_COMPARATOR);
+                costsListAdapter.setList(sortedCostsList);
+                costsListView.setAdapter(costsListAdapter);
+                break;
+            default:
+                if (costsExist && account.equals(getContext().getResources().getString(R.string.app_name)))
+                    costsList = costConnector.getCostsByDate(thisYearMonth.toString());
+                else if (costsExist)
+                    costsList = costConnector.getCostsByDateAccount(thisYearMonth.toString(), account);
+                costsListAdapter.setList(costsList);
+                costsListView.setAdapter(costsListAdapter);
+        }
+    }
+
     @Override
-    public void onCreateContextMenu(@NonNull ContextMenu menu, @NonNull View v, @Nullable ContextMenuInfo menuInfo) {
+    public void onCreateContextMenu(@NonNull ContextMenu menu, @NonNull View
+            v, @Nullable ContextMenuInfo menuInfo) {
         super.onCreateContextMenu(menu, v, menuInfo);
         getActivity().getMenuInflater().inflate(R.menu.cost_list_context_menu, menu);
     }
@@ -349,7 +383,7 @@ public class CostsListFragment extends Fragment {
                 EditGeoDialog editGeoDialog = new EditGeoDialog(getContext(), selectedCost.getGeo(), selectedCost.getCostId());
                 editGeoDialog.show(getActivity().getSupportFragmentManager(), "egd");
                 return true;
-            case R.id.context_item_edit_photo:
+            /*case R.id.context_item_edit_photo:
                 if (selectedCost.isPhotoExists()) {
                     EditPhotoDialog editPhotoDialog = new EditPhotoDialog(getContext(), selectedCost.getPhotoAddress(), selectedCost.getCostId());
                     editPhotoDialog.show(getActivity().getSupportFragmentManager(), "epd");
@@ -357,7 +391,7 @@ public class CostsListFragment extends Fragment {
                     GetPhotoDialog addPhotoDialog = new GetPhotoDialog(getContext(), selectedCost.getCostId());
                     addPhotoDialog.show(getActivity().getSupportFragmentManager(), "apd");
                 }
-                return true;
+                return true;*/
             case R.id.context_item_delete_cost:
                 ShapeDrawable sd = new ShapeDrawable(new OvalShape());
                 sd.setIntrinsicWidth(40);
