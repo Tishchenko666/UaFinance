@@ -6,9 +6,9 @@
     <item
         android:id="@+id/context_item_edit_geo"
         android:title="@string/edit_geo" />
-    <item
+    <!--<item
         android:id="@+id/context_item_edit_photo"
-        android:title="@string/edit_photo" />
+        android:title="@string/edit_photo" />-->
     <item
         android:id="@+id/context_item_delete_cost"
         android:title="@string/delete_cost" />

@@ -12,7 +12,7 @@
         android:layout_height="wrap_content"
         android:layout_alignParentLeft="true"
         android:layout_marginBottom="5dp"
-        android:layout_toLeftOf="@id/ib_photo"
+        android:layout_toLeftOf="@id/iv_cat_photo"
         android:textSize="15sp" />
 
     <TextView
@@ -21,7 +21,7 @@
         android:layout_height="wrap_content"
         android:layout_below="@id/tv_market_name"
         android:layout_marginBottom="5dp"
-        android:layout_toLeftOf="@id/ib_photo"
+        android:layout_toLeftOf="@id/iv_cat_photo"
         android:textSize="15sp" />
 
     <TextView
@@ -29,15 +29,24 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_below="@id/tv_date"
-        android:layout_toLeftOf="@id/ib_photo"
+        android:layout_toLeftOf="@id/iv_cat_photo"
         android:textSize="15sp" />
 
-    <ImageButton
+    <!--<ImageButton
         android:id="@+id/ib_photo"
         android:layout_width="50dp"
         android:layout_height="50dp"
         android:layout_alignParentRight="true"
         android:layout_centerVertical="true"
-        android:layout_marginLeft="5dp" />
+        android:layout_marginLeft="5dp" />-->
+
+    <ImageView
+        android:id="@+id/iv_cat_photo"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentRight="true"
+        android:layout_centerVertical="true"
+        android:layout_marginLeft="5dp"
+        android:src="@drawable/cat_icon_details" />
 
 </RelativeLayout>
