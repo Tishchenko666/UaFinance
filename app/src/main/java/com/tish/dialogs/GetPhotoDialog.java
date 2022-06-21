@@ -21,6 +21,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.DialogFragment;
 
+import com.tish.CostsListFragment;
 import com.tish.MainActivity;
 import com.tish.R;
 import com.tish.db.bases.PhotoManager;
@@ -118,6 +119,7 @@ public class GetPhotoDialog extends DialogFragment {
             public void onClick(DialogInterface dialogInterface, int i) {
                 Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
                 myCameraRegister.launch(intent);
+               dialogInterface.dismiss();
             }
         });
     }
@@ -134,7 +136,6 @@ public class GetPhotoDialog extends DialogFragment {
                                 Bitmap photoBitmap = data.getParcelableExtra("data");
                                 photoAddress = photoManager.savePhoto(photoBitmap);
                                 long updateResult = costConnector.updatePhotoInCost(photoAddress, costId);
-                                Toast.makeText(context, "Фото збережено", Toast.LENGTH_SHORT).show();
                                 sendResult.onSendData(updateResult, "TAG_COSTS_FRAGMENT");
                             }
                         } else {

@@ -71,6 +71,7 @@ public class EditPhotoDialog extends DialogFragment {
         View editView = getActivity().getLayoutInflater().inflate(R.layout.show_photo_dialog_view, null);
         ImageView photoImageView = editView.findViewById(R.id.iv_show_photo);
         photoImageView.setImageURI(Uri.fromFile(new File(photoAddress)));
+        builder.setView(editView);
         builder.setNegativeButton("Видалити", new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialogInterface, int i) {

@@ -215,16 +215,15 @@ public class SetupStatisticsDialog extends DialogFragment
     }
 
     private void fillSpinners(String dateType) {
-        List<String> spinnerList;
+        List<String> spinnerList = new ArrayList<>();
         if (dateType.equals("s")) {
-            spinnerList = new ArrayList<>();
             for (Season s : Season.values())
                 spinnerList.add(s.getName());
         } else {
-            spinnerList = statisticsConnector.getDatesBySettingType(dateType);
+            //spinnerList = statisticsConnector.getDatesBySettingType(dateType);
             if (dateType.equals("m")) {
-                for (int i = 0; i < spinnerList.size(); i++) {
-                    spinnerList.set(i, UkrainianMonth.values()[Integer.parseInt(spinnerList.get(i)) - 1].getUrkMonth());
+                for (UkrainianMonth um : UkrainianMonth.values()) {
+                    spinnerList.add(um.getUrkMonth());
                 }
             }
         }

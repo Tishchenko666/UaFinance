@@ -10,6 +10,7 @@ import android.widget.TextView;
 import com.tish.R;
 import com.tish.models.StatisticsItem;
 
+import java.time.YearMonth;
 import java.util.List;
 
 public class StatisticsListAdapter extends ArrayAdapter<StatisticsItem> {
@@ -67,7 +68,7 @@ public class StatisticsListAdapter extends ArrayAdapter<StatisticsItem> {
         } else {
             if (dateType.equals("m")) {
                 viewHolder.textViewType.setText(item.getTypeName());
-                viewHolder.textViewDate.setText(item.getStatisticsDate());
+                viewHolder.textViewDate.setText(dateContent + ", " + YearMonth.parse(item.getStatisticsDate()).getYear());
                 viewHolder.textViewAmount.setText(String.valueOf(item.getAmount()));
             } else if (dateType.equals("s")) {
                 viewHolder.textViewType.setText(item.getTypeName());

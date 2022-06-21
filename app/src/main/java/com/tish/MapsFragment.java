@@ -61,7 +61,7 @@ public class MapsFragment extends Fragment
             TextView amountValue = mWindow.findViewById(R.id.tv_snippet_amount_value);
             GeoPair currentPair = infoSnippetsMap.get(marker.getTag());
             numberValue.setText(String.valueOf(currentPair.getNumber()));
-            amountValue.setText(String.valueOf(currentPair.getAmount()));
+            amountValue.setText(String.valueOf(-currentPair.getAmount()));
             return mWindow;
         }
 

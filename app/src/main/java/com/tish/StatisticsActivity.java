@@ -19,6 +19,7 @@ import androidx.appcompat.widget.Toolbar;
 import com.tish.adapters.StatisticsListAdapter;
 import com.tish.db.bases.PrefManager;
 import com.tish.db.bases.Season;
+import com.tish.db.bases.UkrainianMonth;
 import com.tish.db.connectors.CostConnector;
 import com.tish.db.connectors.StatisticsConnector;
 import com.tish.dialogs.SetupStatisticsDialog;
@@ -154,6 +155,10 @@ public class StatisticsActivity extends AppCompatActivity implements FragmentSen
                     if (dateStatisticsList.size() > 0) {
                         if (dateSettingsMap.get("dateType").equals("y"))
                             statisticsAdapter = new StatisticsListAdapter(StatisticsActivity.this, dateStatisticsList, true);
+                        else if (dateSettingsMap.get("dateType").equals("m"))
+                            statisticsAdapter = new StatisticsListAdapter(StatisticsActivity.this, dateStatisticsList,
+                                    dateSettingsMap.get("dateType"),
+                                    UkrainianMonth.values()[Integer.parseInt(dateSettingsMap.get("dateContent")) - 1].getUrkMonth());
                         else
                             statisticsAdapter = new StatisticsListAdapter(StatisticsActivity.this, dateStatisticsList,
                                     dateSettingsMap.get("dateType"), Season.values()[Integer.parseInt(dateSettingsMap.get("dateContent"))].getName());

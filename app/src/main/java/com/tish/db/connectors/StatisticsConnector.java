@@ -38,7 +38,7 @@ public class StatisticsConnector {
 
         statisticsCursor = db.rawQuery(query + ", sum(" + Costs.COLUMN_AMOUNT + "), "
                 + "round(sum(" + Costs.COLUMN_AMOUNT + ")/(select sum(" + Costs.COLUMN_AMOUNT + ") from " + Costs.TABLE_NAME + ")*100, 2) "
-                + "from " + Costs.TABLE_NAME + group, null);
+                + "from " + Costs.TABLE_NAME + group + " order by sum(" + Costs.COLUMN_AMOUNT + ") desc", null);
 
         int column = 0;
         while (statisticsCursor.moveToNext()) {
@@ -70,7 +70,7 @@ public class StatisticsConnector {
         statisticsCursor = db.rawQuery(query + ", sum(" + Costs.COLUMN_AMOUNT + "), "
                 + "round(sum(" + Costs.COLUMN_AMOUNT + ")/(select sum(" + Costs.COLUMN_AMOUNT + ") from " + Costs.TABLE_NAME + " where " + Costs.COLUMN_DATE + " like '" + currentDate + "%')*100, 2) "
                 + "from " + Costs.TABLE_NAME + " where " + Costs.COLUMN_DATE + " like '" + currentDate + "%'"
-                + group, null);
+                + group + " order by sum(" + Costs.COLUMN_AMOUNT + ") desc", null);
 
         int column = 0;
         while (statisticsCursor.moveToNext()) {
@@ -95,7 +95,8 @@ public class StatisticsConnector {
                 + "round(sum(c." + Costs.COLUMN_AMOUNT + ")/(select sum(" + Costs.COLUMN_AMOUNT + ") from " + Costs.TABLE_NAME + ")*100, 2) "
                 + "from " + Costs.TABLE_NAME + " as c inner join " + Geolocations.TABLE_NAME + " as g "
                 + "on c." + Costs.COLUMN_GEO_ID + " = g." + Geolocations.COLUMN_GEO_ID
-                + " group by c." + Costs.COLUMN_GEO_ID, null);
+                + " group by c." + Costs.COLUMN_GEO_ID
+                + " order by sum(c." + Costs.COLUMN_AMOUNT + ") desc", null);
 
         int column = 0;
         while (statisticsCursor.moveToNext()) {
@@ -118,7 +119,8 @@ public class StatisticsConnector {
                 + "from " + Costs.TABLE_NAME + " as c inner join " + Geolocations.TABLE_NAME + " as g "
                 + "on c." + Costs.COLUMN_GEO_ID + " = g." + Geolocations.COLUMN_GEO_ID
                 + " where c." + Costs.COLUMN_DATE + " like '" + currentDate + "%'"
-                + " group by c." + Costs.COLUMN_GEO_ID, null);
+                + " group by c." + Costs.COLUMN_GEO_ID
+                + " order by sum(c." + Costs.COLUMN_AMOUNT + ") desc", null);
 
         int column = 0;
         while (statisticsCursor.moveToNext()) {
@@ -147,7 +149,8 @@ public class StatisticsConnector {
         }
 
         statisticsCursor = db.rawQuery(query + ", sum(" + Costs.COLUMN_AMOUNT + ") "
-                + "from " + Costs.TABLE_NAME + group, null);
+                + "from " + Costs.TABLE_NAME + group
+                + " order by sum(" + Costs.COLUMN_AMOUNT + ") desc", null);
 
         int column = 0;
         while (statisticsCursor.moveToNext()) {
@@ -194,7 +197,8 @@ public class StatisticsConnector {
         }
 
         statisticsCursor = db.rawQuery(query + ", sum(" + Costs.COLUMN_AMOUNT + ") "
-                + "from " + Costs.TABLE_NAME + where + group, null);
+                + "from " + Costs.TABLE_NAME + where + group
+                + " order by sum(" + Costs.COLUMN_AMOUNT + ") desc", null);
 
         int column = 0;
         while (statisticsCursor.moveToNext()) {
@@ -222,7 +226,8 @@ public class StatisticsConnector {
                 + ", " + dateForm + ", sum(c." + Costs.COLUMN_AMOUNT + "), "
                 + "from " + Costs.TABLE_NAME + " as c inner join " + Geolocations.TABLE_NAME + " as g "
                 + "on c." + Costs.COLUMN_GEO_ID + " = g." + Geolocations.COLUMN_GEO_ID
-                + " group by c." + Costs.COLUMN_GEO_ID + ", " + dateForm, null);
+                + " group by c." + Costs.COLUMN_GEO_ID + ", " + dateForm
+                + " order by sum(c." + Costs.COLUMN_AMOUNT + ") desc", null);
 
         int column = 0;
         while (statisticsCursor.moveToNext()) {
@@ -262,7 +267,9 @@ public class StatisticsConnector {
 
         statisticsCursor = db.rawQuery(query + ", sum(c." + Costs.COLUMN_AMOUNT + ") "
                 + "from " + Costs.TABLE_NAME + " as c inner join " + Geolocations.TABLE_NAME + " as g "
-                + "on c." + Costs.COLUMN_GEO_ID + " = g." + Geolocations.COLUMN_GEO_ID + where + group, null);
+                + "on c." + Costs.COLUMN_GEO_ID + " = g." + Geolocations.COLUMN_GEO_ID + where + group
+                + " order by sum(c." + Costs.COLUMN_AMOUNT + ") desc", null);
+
         int column = 0;
         while (statisticsCursor.moveToNext()) {
             String address = statisticsCursor.getString(column);
