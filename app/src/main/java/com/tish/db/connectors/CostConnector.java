@@ -28,11 +28,13 @@ public class CostConnector {
     private Cursor costCursor;
     private AccPhoConnector accPhoConnector;
     private GeoConnector geoConnector;
+    private Context context;
 
     public CostConnector(Context context) {
         this.dbHelper = DBHelper.newInstance(context);
         accPhoConnector = new AccPhoConnector(context);
         geoConnector = new GeoConnector(context);
+        this.context = context;
     }
 
 
@@ -177,7 +179,7 @@ public class CostConnector {
         while (costCursor.moveToNext()) {
             String category = costCursor.getString(costCursor.getColumnIndexOrThrow(Costs.COLUMN_CATEGORY));
             float totalAmount = (float) costCursor.getDouble(costCursor.getColumnIndexOrThrow(Costs.COLUMN_CATEGORY) + 1);
-            pieEntries.add(new PieEntry(totalAmount, Category.valueOf(category).getCategoryName()));
+            pieEntries.add(new PieEntry(totalAmount, context.getString(Category.valueOf(category).getCategoryName())));
         }
 
         costCursor.close();
@@ -197,7 +199,7 @@ public class CostConnector {
         while (costCursor.moveToNext()) {
             String category = costCursor.getString(costCursor.getColumnIndexOrThrow(Costs.COLUMN_CATEGORY));
             float totalAmount = (float) costCursor.getDouble(costCursor.getColumnIndexOrThrow(Costs.COLUMN_CATEGORY) + 1);
-            pieEntries.add(new PieEntry(totalAmount, Category.valueOf(category).getCategoryName()));
+            pieEntries.add(new PieEntry(totalAmount, context.getString(Category.valueOf(category).getCategoryName())));
         }
         costCursor.close();
         db.close();

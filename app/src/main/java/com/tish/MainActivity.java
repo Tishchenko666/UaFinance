@@ -1,5 +1,9 @@
 package com.tish;
 
+import androidx.activity.result.ActivityResult;
+import androidx.activity.result.ActivityResultCallback;
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.ActionBarDrawerToggle;
 
@@ -13,7 +17,9 @@ import androidx.fragment.app.FragmentTransaction;
 
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.graphics.Bitmap;
 import android.os.Bundle;
+import android.provider.MediaStore;
 import android.text.Html;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -24,8 +30,10 @@ import android.widget.Spinner;
 import android.widget.Toast;
 
 import com.google.android.material.navigation.NavigationView;
+import com.tish.db.bases.PhotoManager;
 import com.tish.db.bases.PrefManager;
 import com.tish.db.connectors.AccPhoConnector;
+import com.tish.db.connectors.CostConnector;
 import com.tish.dialogs.AddCostDialog;
 import com.tish.interfaces.FragmentSendDataListener;
 
@@ -37,6 +45,8 @@ public class MainActivity extends AppCompatActivity implements FragmentSendDataL
 
     Spinner spinner;
 
+    private int currentSortType;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -45,6 +55,7 @@ public class MainActivity extends AppCompatActivity implements FragmentSendDataL
     }
 
     private void initView() {
+        currentSortType = 0;
         Toolbar toolbar = findViewById(R.id.toolbar_view);
         setSupportActionBar(toolbar);
         spinner = findViewById(R.id.toolbar_spinner_account);
@@ -164,8 +175,7 @@ public class MainActivity extends AppCompatActivity implements FragmentSendDataL
     @Override
     public void onSendData(long data, String fragmentTag) {
         if (data > 0) {
-            CostsListFragment clf;
-            clf = (CostsListFragment) getSupportFragmentManager().findFragmentByTag(fragmentTag);
+            CostsListFragment clf = (CostsListFragment) getSupportFragmentManager().findFragmentByTag(fragmentTag);
             if (spinner.getSelectedItem().toString().equals(getResources().getString(R.string.app_name)))
                 clf.updateDataByDate("", true);
             else {
@@ -191,8 +201,21 @@ public class MainActivity extends AppCompatActivity implements FragmentSendDataL
                 AddCostDialog addCostDialog = new AddCostDialog(MainActivity.this);
                 addCostDialog.show(getSupportFragmentManager(), "acd");
                 break;
+            case R.id.item_sort_list:
+                CostsListFragment clf = (CostsListFragment) getSupportFragmentManager().findFragmentByTag("TAG_COSTS_FRAGMENT");
+                if (currentSortType == 0) {
+                    clf.sortCostList(-1);
+                    currentSortType = -1;
+                } else if (currentSortType == -1) {
+                    clf.sortCostList(1);
+                    currentSortType = 1;
+                } else {
+                    clf.sortCostList(0);
+                    currentSortType = 0;
+                }
+                break;
             //case R.id.item_change_type:
-                //describe
+            //describe
         }
         return true;
     }
@@ -206,6 +229,7 @@ public class MainActivity extends AppCompatActivity implements FragmentSendDataL
             super.onBackPressed();
         }
     }
+
 
     private void createWelcomeMessage() {
         AlertDialog welcomeDialog = new AlertDialog.Builder(MainActivity.this)

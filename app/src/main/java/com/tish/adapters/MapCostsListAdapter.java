@@ -50,7 +50,7 @@ public class MapCostsListAdapter extends ArrayAdapter<Cost> {
         sd.setIntrinsicWidth(40);
         sd.getPaint().setColor(context.getResources().getColor(cost.getCategory().getColorResource(), null));
         viewHolder.imageViewCategoryIcon.setBackground(sd);
-        viewHolder.textViewCategory.setText(cost.getCategoryName());
+        viewHolder.textViewCategory.setText(context.getString(cost.getCategoryName()));
         viewHolder.textViewAmount.setText(String.valueOf(cost.getAmount()));
         viewHolder.textViewMarket.setText(cost.getMarketName());
         viewHolder.textViewDate.setText(cost.getDate());

@@ -75,7 +75,7 @@ public class EditGeoDialog extends DialogFragment {
     @Override
     public Dialog onCreateDialog(@Nullable Bundle savedInstanceState) {
         AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
-        builder.setTitle("Змініть геодані");
+        builder.setTitle(R.string.title_edit_geo);
         View editGeoView = getActivity().getLayoutInflater().inflate(R.layout.edit_geo_dialog_view, null);
         cityEditText = editGeoView.findViewById(R.id.et_edit_geo_city);
         addressEditText = editGeoView.findViewById(R.id.et_edit_geo_address);
@@ -87,8 +87,8 @@ public class EditGeoDialog extends DialogFragment {
         }
         errorTextView = editGeoView.findViewById(R.id.tv_edit_geo_error);
         builder.setView(editGeoView);
-        builder.setPositiveButton("Змінити", null);
-        builder.setNegativeButton("Відмінити", new DialogInterface.OnClickListener() {
+        builder.setPositiveButton(R.string.button_edit, null);
+        builder.setNegativeButton(R.string.button_cancel, new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
                 dialog.cancel();
@@ -105,13 +105,13 @@ public class EditGeoDialog extends DialogFragment {
                         String city = cityEditText.getText().toString();
                         String address = addressEditText.getText().toString();
                         if (city.equals("") && address.equals("")) {
-                            errorTextView.setText("Необхідно вказати місто та адресу");
+                            errorTextView.setText(R.string.specify_city_address_text);
                             errorTextView.setVisibility(View.VISIBLE);
                         } else if (city.equals("")) {
-                            errorTextView.setText("Необхідно вказати місто");
+                            errorTextView.setText(R.string.specify_city_text);
                             errorTextView.setVisibility(View.VISIBLE);
                         } else if (address.equals("")) {
-                            errorTextView.setText("Необхідно вказати адресу");
+                            errorTextView.setText(R.string.specify_address_text);
                             errorTextView.setVisibility(View.VISIBLE);
                         } else {
                             errorTextView.setVisibility(View.INVISIBLE);
@@ -152,7 +152,7 @@ public class EditGeoDialog extends DialogFragment {
                 editGeo.setAddress(address[0]);
                 canBeSaved = true;
             } else {
-                errorTextView.setText("У цьому місті немає такої адреси");
+                errorTextView.setText(R.string.no_address_in_city_text);
                 errorTextView.setVisibility(View.VISIBLE);
                 canBeSaved = false;
             }

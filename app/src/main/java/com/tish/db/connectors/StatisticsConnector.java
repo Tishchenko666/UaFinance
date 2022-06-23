@@ -4,6 +4,7 @@ import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 
+import com.tish.R;
 import com.tish.db.bases.Category;
 import com.tish.db.bases.DBContract.Costs;
 import com.tish.db.bases.DBContract.Geolocations;
@@ -18,9 +19,11 @@ public class StatisticsConnector {
     private DBHelper dbHelper;
     private SQLiteDatabase db;
     private Cursor statisticsCursor;
+    private Context context;
 
     public StatisticsConnector(Context context) {
         this.dbHelper = DBHelper.newInstance(context);
+        this.context = context;
     }
 
     public List<StatisticsItem> getCategoryMarketStatistics(char type) {
@@ -30,7 +33,7 @@ public class StatisticsConnector {
         StringBuilder group = new StringBuilder(" group by ");
         if (type == 'm') {
             query.append(Costs.COLUMN_MARKET_NAME);
-            group.append(Costs.COLUMN_MARKET_NAME);
+            group.append(Costs.COLUMN_MARKET_NAME).append(" having ").append(Costs.COLUMN_MARKET_NAME).append(" is not null");
         } else {
             query.append(Costs.COLUMN_CATEGORY);
             group.append(Costs.COLUMN_CATEGORY);
@@ -38,17 +41,19 @@ public class StatisticsConnector {
 
         statisticsCursor = db.rawQuery(query + ", sum(" + Costs.COLUMN_AMOUNT + "), "
                 + "round(sum(" + Costs.COLUMN_AMOUNT + ")/(select sum(" + Costs.COLUMN_AMOUNT + ") from " + Costs.TABLE_NAME + ")*100, 2) "
-                + "from " + Costs.TABLE_NAME + group, null);
+                + "from " + Costs.TABLE_NAME + group + " order by sum(" + Costs.COLUMN_AMOUNT + ") desc", null);
 
         int column = 0;
         while (statisticsCursor.moveToNext()) {
             String category = statisticsCursor.getString(column);
+            if (category == null)
+                category = context.getResources().getString(R.string.no_place);
             double amount = statisticsCursor.getDouble(column + 1);
             double percent = statisticsCursor.getDouble(column + 2);
             if (type == 'm')
                 itemList.add(new StatisticsItem(category, -amount, percent));
             else
-                itemList.add(new StatisticsItem(Category.valueOf(category).getCategoryName(), -amount, percent));
+                itemList.add(new StatisticsItem(context.getString(Category.valueOf(category).getCategoryName()), -amount, percent));
         }
         statisticsCursor.close();
         db.close();
@@ -70,17 +75,19 @@ public class StatisticsConnector {
         statisticsCursor = db.rawQuery(query + ", sum(" + Costs.COLUMN_AMOUNT + "), "
                 + "round(sum(" + Costs.COLUMN_AMOUNT + ")/(select sum(" + Costs.COLUMN_AMOUNT + ") from " + Costs.TABLE_NAME + " where " + Costs.COLUMN_DATE + " like '" + currentDate + "%')*100, 2) "
                 + "from " + Costs.TABLE_NAME + " where " + Costs.COLUMN_DATE + " like '" + currentDate + "%'"
-                + group, null);
+                + group + " order by sum(" + Costs.COLUMN_AMOUNT + ") desc", null);
 
         int column = 0;
         while (statisticsCursor.moveToNext()) {
             String category = statisticsCursor.getString(column);
+            if (category == null)
+                category = context.getResources().getString(R.string.no_place);
             double amount = statisticsCursor.getDouble(column + 1);
             double percent = statisticsCursor.getDouble(column + 2);
             if (type == 'm')
                 itemList.add(new StatisticsItem(category, -amount, percent));
             else
-                itemList.add(new StatisticsItem(Category.valueOf(category).getCategoryName(), -amount, percent));
+                itemList.add(new StatisticsItem(context.getString(Category.valueOf(category).getCategoryName()), -amount, percent));
         }
         statisticsCursor.close();
         db.close();
@@ -95,7 +102,8 @@ public class StatisticsConnector {
                 + "round(sum(c." + Costs.COLUMN_AMOUNT + ")/(select sum(" + Costs.COLUMN_AMOUNT + ") from " + Costs.TABLE_NAME + ")*100, 2) "
                 + "from " + Costs.TABLE_NAME + " as c inner join " + Geolocations.TABLE_NAME + " as g "
                 + "on c." + Costs.COLUMN_GEO_ID + " = g." + Geolocations.COLUMN_GEO_ID
-                + " group by c." + Costs.COLUMN_GEO_ID, null);
+                + " group by c." + Costs.COLUMN_GEO_ID
+                + " order by sum(c." + Costs.COLUMN_AMOUNT + ") desc", null);
 
         int column = 0;
         while (statisticsCursor.moveToNext()) {
@@ -118,7 +126,8 @@ public class StatisticsConnector {
                 + "from " + Costs.TABLE_NAME + " as c inner join " + Geolocations.TABLE_NAME + " as g "
                 + "on c." + Costs.COLUMN_GEO_ID + " = g." + Geolocations.COLUMN_GEO_ID
                 + " where c." + Costs.COLUMN_DATE + " like '" + currentDate + "%'"
-                + " group by c." + Costs.COLUMN_GEO_ID, null);
+                + " group by c." + Costs.COLUMN_GEO_ID
+                + " order by sum(c." + Costs.COLUMN_AMOUNT + ") desc", null);
 
         int column = 0;
         while (statisticsCursor.moveToNext()) {
@@ -147,17 +156,20 @@ public class StatisticsConnector {
         }
 
         statisticsCursor = db.rawQuery(query + ", sum(" + Costs.COLUMN_AMOUNT + ") "
-                + "from " + Costs.TABLE_NAME + group, null);
+                + "from " + Costs.TABLE_NAME + group
+                + " order by sum(" + Costs.COLUMN_AMOUNT + ") desc", null);
 
         int column = 0;
         while (statisticsCursor.moveToNext()) {
             String category = statisticsCursor.getString(column);
+            if (category == null)
+                category = context.getResources().getString(R.string.no_place);
             String date = statisticsCursor.getString(column + 1);
             double amount = statisticsCursor.getDouble(column + 2);
             if (type == 'm')
                 itemList.add(new StatisticsItem(category, date, -amount));
             else
-                itemList.add(new StatisticsItem(Category.valueOf(category).getCategoryName(), date, -amount));
+                itemList.add(new StatisticsItem(context.getString(Category.valueOf(category).getCategoryName()), date, -amount));
         }
         statisticsCursor.close();
         db.close();
@@ -194,17 +206,20 @@ public class StatisticsConnector {
         }
 
         statisticsCursor = db.rawQuery(query + ", sum(" + Costs.COLUMN_AMOUNT + ") "
-                + "from " + Costs.TABLE_NAME + where + group, null);
+                + "from " + Costs.TABLE_NAME + where + group
+                + " order by sum(" + Costs.COLUMN_AMOUNT + ") desc", null);
 
         int column = 0;
         while (statisticsCursor.moveToNext()) {
             String category = statisticsCursor.getString(column);
+            if (category == null)
+                category = context.getResources().getString(R.string.no_place);
             String date = statisticsCursor.getString(column + 1);
             double amount = statisticsCursor.getDouble(column + 2);
             if (type == 'm')
                 itemList.add(new StatisticsItem(category, date, -amount));
             else
-                itemList.add(new StatisticsItem(Category.valueOf(category).getCategoryName(), date, -amount));
+                itemList.add(new StatisticsItem(context.getString(Category.valueOf(category).getCategoryName()), date, -amount));
         }
         statisticsCursor.close();
         db.close();
@@ -220,7 +235,8 @@ public class StatisticsConnector {
                 + ", " + dateForm + ", sum(c." + Costs.COLUMN_AMOUNT + "), "
                 + "from " + Costs.TABLE_NAME + " as c inner join " + Geolocations.TABLE_NAME + " as g "
                 + "on c." + Costs.COLUMN_GEO_ID + " = g." + Geolocations.COLUMN_GEO_ID
-                + " group by c." + Costs.COLUMN_GEO_ID + ", " + dateForm, null);
+                + " group by c." + Costs.COLUMN_GEO_ID + ", " + dateForm
+                + " order by sum(c." + Costs.COLUMN_AMOUNT + ") desc", null);
 
         int column = 0;
         while (statisticsCursor.moveToNext()) {
@@ -260,7 +276,9 @@ public class StatisticsConnector {
 
         statisticsCursor = db.rawQuery(query + ", sum(c." + Costs.COLUMN_AMOUNT + ") "
                 + "from " + Costs.TABLE_NAME + " as c inner join " + Geolocations.TABLE_NAME + " as g "
-                + "on c." + Costs.COLUMN_GEO_ID + " = g." + Geolocations.COLUMN_GEO_ID + where + group, null);
+                + "on c." + Costs.COLUMN_GEO_ID + " = g." + Geolocations.COLUMN_GEO_ID + where + group
+                + " order by sum(c." + Costs.COLUMN_AMOUNT + ") desc", null);
+
         int column = 0;
         while (statisticsCursor.moveToNext()) {
             String address = statisticsCursor.getString(column);
