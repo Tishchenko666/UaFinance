@@ -22,6 +22,7 @@
             android:layout_height="wrap_content"
             android:layout_margin="10dp"
             android:hint="@string/enter_amount"
+            android:imeOptions="actionDone"
             android:inputType="numberDecimal"
             android:textSize="20sp" />
 
@@ -31,6 +32,7 @@
             android:layout_height="wrap_content"
             android:layout_margin="10dp"
             android:hint="@string/enter_date"
+            android:imeOptions="actionDone"
             android:inputType="date"
             android:textSize="20sp" />
 
@@ -40,6 +42,7 @@
             android:layout_height="wrap_content"
             android:layout_margin="10dp"
             android:hint="@string/enter_market_name"
+            android:imeOptions="actionDone"
             android:inputType="textCapSentences"
             android:textSize="20sp" />
 
@@ -64,6 +67,7 @@
             android:layout_height="wrap_content"
             android:layout_margin="10dp"
             android:hint="@string/enter_city"
+            android:imeOptions="actionDone"
             android:inputType="textCapSentences"
             android:textSize="20sp"
             android:visibility="invisible" />
@@ -74,34 +78,10 @@
             android:layout_height="wrap_content"
             android:layout_margin="10dp"
             android:hint="@string/enter_address"
+            android:imeOptions="actionDone"
             android:inputType="textCapSentences"
             android:textSize="20sp"
             android:visibility="invisible" />
-
-
-        <!--  <LinearLayout
-              android:id="@+id/ll_cost_add_photo"
-              android:layout_width="match_parent"
-              android:layout_height="wrap_content"
-              android:orientation="horizontal">
-
-              <TextView
-                  android:id="@+id/tv_add_cost_photo"
-                  android:layout_width="wrap_content"
-                  android:layout_height="wrap_content"
-                  android:layout_gravity="center_vertical"
-                  android:layout_margin="10dp"
-                  android:text="@string/add_cheque_photo" />
-
-              <ImageButton
-                  android:id="@+id/ib_make_photo"
-                  android:layout_width="60dp"
-                  android:layout_height="60dp"
-                  android:layout_gravity="center|right"
-                  android:layout_margin="10dp"
-                  app:srcCompat="@drawable/icon_no_cheque" />
-
-          </LinearLayout>-->
 
         <TextView
             android:id="@+id/tv_cost_error"

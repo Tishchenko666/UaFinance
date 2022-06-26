@@ -1,5 +1,25 @@
 <resources>
     <string name="app_name">UaFinance</string>
+    <string name="current_locale">uk</string>
+
+    <string name="category_food">Харчування</string>
+    <string name="category_health">Здоров`я</string>
+    <string name="category_home">Дім</string>
+    <string name="category_hygiene">Гігієна</string>
+    <string name="category_clothes">Одяг</string>
+    <string name="category_housecosts">Комунальні послуги</string>
+    <string name="category_transport">Громадський транспорт</string>
+    <string name="category_car">Персональний транспорт</string>
+    <string name="category_caffee">Кафе та ресторани</string>
+    <string name="category_cinema">Розваги</string>
+    <string name="category_travel">Подорожі</string>
+    <string name="category_education">Освіта</string>
+    <string name="category_hobby">Захоплення</string>
+    <string name="category_gifts">Подарунки</string>
+    <string name="category_children">Діти</string>
+    <string name="category_pets">Домашні улюбленці</string>
+    <string name="category_makeup">Догляд за собою</string>
+    <string name="category_other">Інше</string>
 
     <string name="nav_item_costs">Списки потоків</string>
     <string name="nav_item_map">Карта витрат</string>
@@ -68,4 +88,44 @@
     <string name="number_of_costs">Число витрат: </string>
     <string name="costs_amount_sum">Сума витрат:</string>
     <string name="item_sort_list">Сортувати список</string>
+
+    <string name="total_amount_text">Загальні сума</string>
+    <string name="title_delete_cost">Видалення витрати</string>
+    <string name="message_delete_cost">Ви певні, що бажаєте видалити витрату категорії \'%s\' сумою %.2f?</string>
+    <string name="button_yes_delete">Так, видалити</string>
+    <string name="button_no">Ні</string>
+    <string name="title_edit_cost">Змінити дані витрати</string>
+    <string name="button_edit">Змінити</string>
+    <string name="button_cancel">Відмінити</string>
+    <string name="enter_cost_sum_text">Введіть сумму витрати</string>
+    <string name="enter_date_text">Введіть дату витрати або - для використання поточної</string>
+    <string name="failed_date_format_text">Формат дати помилковий</string>
+    <string name="spinner_item_without_account">Без рахунку</string>
+    <string name="title_edit_geo">Змінити геодані</string>
+    <string name="specify_city_address_text">Необхідно вказати місто та адресу</string>
+    <string name="specify_city_text">Необхідно вказати місто</string>
+    <string name="specify_address_text">Необхідно вказати адресу</string>
+    <string name="no_address_in_city_text">У цьому місті немає такої адреси</string>
+    <string name="title_enter_cost_data">Введіть дані витрати</string>
+    <string name="button_save">Зберегти</string>
+    <string name="using_period_days">%d днів</string>
+    <string name="title_delete_account">Видалити рахунок</string>
+    <string name="message_delete_account">Ви певні, що бажаєте видалити рахунок %s?</string>
+    <string name="title_account_data">Дані рахунку</string>
+    <string name="specify_account_number_text">Номер рахунку необхідно вказати</string>
+    <string name="account_number_have_numbers_text">Номер рахунку має складатися з цифр</string>
+    <string name="spinner_item_all_dates">Всі дати</string>
+    <string name="title_statistics_settings">Налаштування статитсики</string>
+    <string name="no_place">Місце витрати відсутнє</string>
+
+    <string name="settings_title">Налаштування</string>
+    <string name="language_header">Мова</string>
+    <string name="diagram_header">Діаграма</string>
+    <string name="lang_title">Мова застосування</string>
+    <string name="diagram_title">Налаштувати діаграму</string>
+    <string name="names_title">Показувати назви категорій</string>
+    <string name="values_title">Показувати значення</string>
+    <string name="percent_title">Показувати значення у відсотках</string>
+    <string name="percent_summary_on">Значення буде показано у відсотках</string>
+    <string name="percent_summary_off">Значення буде показано у сумах</string>
 </resources>
