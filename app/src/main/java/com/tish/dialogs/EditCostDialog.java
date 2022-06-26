@@ -70,7 +70,7 @@ public class EditCostDialog extends DialogFragment {
     @Override
     public Dialog onCreateDialog(@Nullable Bundle savedInstanceState) {
         AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
-        builder.setTitle("Змініть дані витрати");
+        builder.setTitle(R.string.title_edit_cost);
         View editCostView = getActivity().getLayoutInflater().inflate(R.layout.edit_cost_dialog_view, null);
         amountEditText = editCostView.findViewById(R.id.et_edit_cost_amount);
         amountEditText.setText(String.valueOf(-1 * editCost.getAmount()));
@@ -83,8 +83,8 @@ public class EditCostDialog extends DialogFragment {
         fillSpinners(editCost.getCategory().ordinal(), editCost.getAccountNumber());
         errorTextView = editCostView.findViewById(R.id.tv_edit_cost_error);
         builder.setView(editCostView);
-        builder.setPositiveButton("Змінити", null);
-        builder.setNegativeButton("Відмінити", new DialogInterface.OnClickListener() {
+        builder.setPositiveButton(R.string.button_edit, null);
+        builder.setNegativeButton(R.string.button_cancel, new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
                 dialog.cancel();
@@ -101,13 +101,13 @@ public class EditCostDialog extends DialogFragment {
                         String amount = amountEditText.getText().toString();
                         String date = dateEditText.getText().toString();
                         if (amount.equals("")) {
-                            errorTextView.setText("Введіть сумму витрати");
+                            errorTextView.setText(R.string.enter_cost_sum_text);
                             errorTextView.setVisibility(View.VISIBLE);
                         } else if (date.equals("")) {
-                            errorTextView.setText("Введіть дату витрати або - для використання поточної");
+                            errorTextView.setText(R.string.enter_date_text);
                             errorTextView.setVisibility(View.VISIBLE);
                         } else if (!date.matches(dateRegexDayYear) && !date.matches(dateRegexYearDay) && !date.equals("-")) {
-                            errorTextView.setText("Формат дати помилковий");
+                            errorTextView.setText(R.string.failed_date_format_text);
                             errorTextView.setVisibility(View.VISIBLE);
                         } else {
                             errorTextView.setVisibility(View.INVISIBLE);
@@ -125,7 +125,7 @@ public class EditCostDialog extends DialogFragment {
                                 if (!editCost.getDate().equals(date))
                                     editCost.setDate(date);
                             }
-                            if (!categorySpinner.getSelectedItem().toString().equals(editCost.getCategoryName()))
+                            if (!categorySpinner.getSelectedItem().toString().equals(getString(editCost.getCategoryName())))
                                 editCost.setCategory(Category.values()[categorySpinner.getSelectedItemPosition()]);
                             if (!marketNameEditText.getText().toString().equals(editCost.getMarketName()))
                                 editCost.setMarketName(marketNameEditText.getText().toString());
@@ -153,7 +153,7 @@ public class EditCostDialog extends DialogFragment {
     private void fillSpinners(int categoryOrdinal, String accountNumber) {
         List<String> categoryList = new ArrayList<>();
         for (Category c : Category.values()) {
-            categoryList.add(c.getCategoryName());
+            categoryList.add(getString(c.getCategoryName()));
         }
         ArrayAdapter<String> categoryAdapter = new ArrayAdapter<String>(context, android.R.layout.simple_spinner_item, categoryList);
         categoryAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
@@ -162,7 +162,7 @@ public class EditCostDialog extends DialogFragment {
 
         AccPhoConnector accPhoConnector = new AccPhoConnector(context);
         List<String> accountList = accPhoConnector.getAccounts();
-        accountList.add(0, "Без рахунку");
+        accountList.add(0, getResources().getString(R.string.spinner_item_without_account));
         ArrayAdapter<String> accountAdapter = new ArrayAdapter<String>(context, android.R.layout.simple_spinner_item, accountList);
         accountAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         accountSpinner.setAdapter(accountAdapter);

@@ -4,35 +4,25 @@ import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.Context;
 import android.content.DialogInterface;
-import android.content.Intent;
-import android.graphics.Bitmap;
 import android.location.Address;
 import android.location.Geocoder;
 import android.os.Bundle;
-import android.provider.MediaStore;
 import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.CompoundButton;
 import android.widget.EditText;
-import android.widget.ImageButton;
 import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import androidx.activity.result.ActivityResult;
-import androidx.activity.result.ActivityResultCallback;
-import androidx.activity.result.ActivityResultLauncher;
-import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.DialogFragment;
 
-import com.tish.MainActivity;
 import com.tish.R;
 import com.tish.db.bases.Category;
-import com.tish.db.bases.PhotoManager;
 import com.tish.db.connectors.AccPhoConnector;
 import com.tish.db.connectors.CostConnector;
 import com.tish.models.Cost;
@@ -40,9 +30,6 @@ import com.tish.interfaces.FragmentSendDataListener;
 import com.tish.models.Geolocation;
 
 import java.io.IOException;
-import java.math.BigDecimal;
-import java.math.MathContext;
-import java.math.RoundingMode;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
@@ -103,7 +90,7 @@ public class AddCostDialog extends DialogFragment
     @Override
     public Dialog onCreateDialog(@Nullable Bundle savedInstanceState) {
         AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
-        builder.setTitle("Введіть дані витрати");
+        builder.setTitle(R.string.title_enter_cost_data);
         View addCostView = getActivity().getLayoutInflater().inflate(R.layout.add_cost_dialog_view, null);
         amountEditText = addCostView.findViewById(R.id.et_cost_amount);
         dateEditText = addCostView.findViewById(R.id.et_cost_date);
@@ -120,8 +107,8 @@ public class AddCostDialog extends DialogFragment
         // makePhotoImageButton.setOnClickListener(this);
         errorTextView = addCostView.findViewById(R.id.tv_cost_error);
         builder.setView(addCostView);
-        builder.setPositiveButton("Зберегти", null);
-        builder.setNegativeButton("Відмінити", new DialogInterface.OnClickListener() {
+        builder.setPositiveButton(R.string.button_save, null);
+        builder.setNegativeButton(R.string.button_cancel, new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
                 dialog.cancel();
@@ -139,13 +126,13 @@ public class AddCostDialog extends DialogFragment
                         String amount = amountEditText.getText().toString();
                         String date = dateEditText.getText().toString();
                         if (amount.equals("")) {
-                            errorTextView.setText("Введіть сумму витрати");
+                            errorTextView.setText(R.string.enter_cost_sum_text);
                             errorTextView.setVisibility(View.VISIBLE);
                         } else if (date.equals("")) {
-                            errorTextView.setText("Введіть дату витрати або - для використання поточної");
+                            errorTextView.setText(R.string.enter_date_text);
                             errorTextView.setVisibility(View.VISIBLE);
                         } else if (!date.matches(dateRegexDayYear) && !date.matches(dateRegexYearDay) && !date.equals("-")) {
-                            errorTextView.setText("Формат дати помилковий");
+                            errorTextView.setText(R.string.failed_date_format_text);
                             errorTextView.setVisibility(View.VISIBLE);
                         } else {
                             errorTextView.setVisibility(View.INVISIBLE);
@@ -175,20 +162,20 @@ public class AddCostDialog extends DialogFragment
                                 String city = cityEditText.getText().toString();
                                 String address = addressEditText.getText().toString();
                                 if (city.equals("") && address.equals("")) {
-                                    errorTextView.setText("Необхідно вказати місто та адресу");
+                                    errorTextView.setText(R.string.specify_city_address_text);
                                     errorTextView.setVisibility(View.VISIBLE);
                                     canBeSaved = false;
                                 } else if (city.equals("")) {
-                                    errorTextView.setText("Необхідно вказати місто");
+                                    errorTextView.setText(R.string.specify_city_text);
                                     errorTextView.setVisibility(View.VISIBLE);
                                     canBeSaved = false;
                                 } else if (address.equals("")) {
-                                    errorTextView.setText("Необхідно вказати адресу");
+                                    errorTextView.setText(R.string.specify_address_text);
                                     errorTextView.setVisibility(View.VISIBLE);
                                     canBeSaved = false;
                                 } else {
                                     errorTextView.setVisibility(View.INVISIBLE);
-                                    Locale locale = new Locale("ukr", "UA");
+                                    Locale locale = new Locale(getString(R.string.current_locale));
                                     Geocoder geocoder = new Geocoder(context, locale);
                                     List<Address> ads;
                                     try {
@@ -234,7 +221,7 @@ public class AddCostDialog extends DialogFragment
     private void fillSpinners() {
         List<String> categoryList = new ArrayList<>();
         for (Category c : Category.values()) {
-            categoryList.add(c.getCategoryName());
+            categoryList.add(getString(c.getCategoryName()));
         }
         ArrayAdapter<String> categoryAdapter = new ArrayAdapter<String>(context, android.R.layout.simple_spinner_item, categoryList);
         categoryAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
@@ -243,7 +230,7 @@ public class AddCostDialog extends DialogFragment
 
         AccPhoConnector accPhoConnector = new AccPhoConnector(context);
         List<String> accountList = accPhoConnector.getAccounts();
-        accountList.add(0, "Без рахунку");
+        accountList.add(0, getResources().getString(R.string.spinner_item_without_account));
         ArrayAdapter<String> accountAdapter = new ArrayAdapter<String>(context, android.R.layout.simple_spinner_item, accountList);
         accountAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         accountSpinner.setAdapter(accountAdapter);

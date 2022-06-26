@@ -27,7 +27,7 @@ public class DBHelper extends SQLiteOpenHelper {
         //db.execSQL(DBContract.Incomes.CREATE_TABLE_INCOMES);
         db.execSQL(DBContract.Geolocations.CREATE_TABLE_GEOLOCATIONS);
         db.execSQL(DBContract.Accounts.CREATE_TABLE_ACCOUNTS);
-        db.execSQL(DBContract.Photos.CREATE_TABLE_PHOTOS);
+        //db.execSQL(DBContract.Photos.CREATE_TABLE_PHOTOS);
     }
 
     @Override

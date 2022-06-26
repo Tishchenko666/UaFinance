@@ -12,7 +12,6 @@ import android.widget.CheckBox;
 import android.widget.CompoundButton;
 import android.widget.EditText;
 import android.widget.LinearLayout;
-import android.widget.NumberPicker;
 import android.widget.RadioButton;
 import android.widget.RadioGroup;
 import android.widget.Spinner;
@@ -23,14 +22,14 @@ import androidx.fragment.app.DialogFragment;
 
 import com.tish.R;
 import com.tish.db.bases.PrefManager;
-import com.tish.db.bases.Season;
-import com.tish.db.bases.UkrainianMonth;
+//import com.tish.db.bases.Season;
+//import com.tish.db.bases.UkrainianMonth;
 import com.tish.db.connectors.StatisticsConnector;
-import com.tish.interfaces.FragmentSendDataListener;
 import com.tish.interfaces.FragmentSendSettingDataListener;
 
 import java.time.YearMonth;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 public class SetupStatisticsDialog extends DialogFragment
@@ -78,7 +77,7 @@ public class SetupStatisticsDialog extends DialogFragment
     @Override
     public Dialog onCreateDialog(@Nullable Bundle savedInstanceState) {
         AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
-        builder.setTitle("Налаштування статитсики");
+        builder.setTitle(R.string.title_statistics_settings);
 
         setupView = getActivity().getLayoutInflater().inflate(R.layout.setup_statistics_dialog_view, null);
         typeRadioGroup = setupView.findViewById(R.id.rg_type);
@@ -109,8 +108,8 @@ public class SetupStatisticsDialog extends DialogFragment
 
         builder.setView(setupView);
 
-        builder.setPositiveButton("Зберегти", null);
-        builder.setNegativeButton("Відмінити", new DialogInterface.OnClickListener() {
+        builder.setPositiveButton(R.string.button_save, null);
+        builder.setNegativeButton(R.string.button_cancel, new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
                 dialog.cancel();
@@ -129,21 +128,21 @@ public class SetupStatisticsDialog extends DialogFragment
                         int type = typeRadioGroup.getCheckedRadioButtonId();
                         settings.putInt("type", type);
                         prefManager.setType(type);
-                        String dateType;
+                        int dateType;
                         String dateContent;
                         String periodAmount;
                         if (setupDateCheckBox.isChecked()) {
                             settings.putString("date", "is");
                             prefManager.setDateSetupChecked(true);
-                            dateType = ((RadioButton) setupView.findViewById(dateTypeRadioGroup.getCheckedRadioButtonId())).getText().toString();
+                            dateType = dateTypeRadioGroup.getCheckedRadioButtonId();
                             prefManager.setDateType(dateTypeRadioGroup.getCheckedRadioButtonId());
-                            if (dateType.equals("Рік")) {
+                            if (dateType == R.id.rb_date_year) {
                                 //dateContent = dateSettingSpinner.getSelectedItem().toString();
                                 settings.putString("dateType", "y");
                                 //settings.putString("dateContent", dateContent);
                             } else {
                                 periodAmount = periodAmountEditText.getText().toString();
-                                if (dateType.equals("Місяць")) {
+                                if (dateType == R.id.rb_date_mouth) {
                                     settings.putString("dateType", "m");
                                     int dc = dateSettingSpinner.getSelectedItemPosition() + 1;
                                     if (dc < 10)
@@ -217,21 +216,20 @@ public class SetupStatisticsDialog extends DialogFragment
     private void fillSpinners(String dateType) {
         List<String> spinnerList = new ArrayList<>();
         if (dateType.equals("s")) {
-            for (Season s : Season.values())
-                spinnerList.add(s.getName());
+            spinnerList.addAll(Arrays.asList(getResources().getStringArray(R.array.season)));
+            //for (Season s : Season.values()) spinnerList.add(s.getName());
         } else {
             //spinnerList = statisticsConnector.getDatesBySettingType(dateType);
             if (dateType.equals("m")) {
-                for (UkrainianMonth um : UkrainianMonth.values()) {
-                    spinnerList.add(um.getUrkMonth());
-                }
+                spinnerList.addAll(Arrays.asList(getResources().getStringArray(R.array.month)));
+                //for (UkrainianMonth um : UkrainianMonth.values()) spinnerList.add(um.getUrkMonth());
             }
         }
         ArrayAdapter<String> dateSettingAdapter = new ArrayAdapter<String>(context, android.R.layout.simple_spinner_item, spinnerList);
         dateSettingAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         dateSettingSpinner.setAdapter(dateSettingAdapter);
         if (dateType.equals("m")) {
-            dateSettingSpinner.setSelection(spinnerList.indexOf(UkrainianMonth.valueOf(YearMonth.now().getMonth().toString()).getUrkMonth()));
+            dateSettingSpinner.setSelection(YearMonth.now().getMonthValue() - 1);
         } else if (dateType.equals("s")) {
             int thisSeasonNumber = (int) YearMonth.now().getMonthValue() / 3;
             dateSettingSpinner.setSelection(thisSeasonNumber < 4 ? thisSeasonNumber : 0);

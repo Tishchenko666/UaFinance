@@ -2,10 +2,7 @@ package com.tish;
 
 import android.annotation.SuppressLint;
 import android.app.AlertDialog;
-import android.content.Context;
 import android.content.DialogInterface;
-import android.content.Intent;
-import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
@@ -14,15 +11,10 @@ import android.graphics.drawable.ShapeDrawable;
 import android.graphics.drawable.shapes.OvalShape;
 import android.os.Bundle;
 
-import androidx.activity.result.ActivityResult;
-import androidx.activity.result.ActivityResultCallback;
-import androidx.activity.result.ActivityResultLauncher;
-import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 
-import android.provider.MediaStore;
 import android.view.ContextMenu;
 import android.view.ContextMenu.ContextMenuInfo;
 import android.view.Gravity;
@@ -32,8 +24,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
-import android.widget.AdapterView;
-import android.widget.AdapterView.AdapterContextMenuInfo;
+
 import android.widget.ExpandableListView;
 import android.widget.ExpandableListView.ExpandableListContextMenuInfo;
 import android.widget.ImageButton;
@@ -44,20 +35,18 @@ import android.widget.ViewSwitcher;
 
 import com.github.mikephil.charting.charts.PieChart;
 import com.github.mikephil.charting.components.Description;
-import com.github.mikephil.charting.data.Entry;
 import com.github.mikephil.charting.data.PieData;
 import com.github.mikephil.charting.data.PieDataSet;
 import com.github.mikephil.charting.data.PieEntry;
-import com.github.mikephil.charting.highlight.Highlight;
-import com.github.mikephil.charting.listener.OnChartValueSelectedListener;
 import com.tish.adapters.CostsExpListAdapter;
-import com.tish.db.bases.PhotoManager;
-import com.tish.db.bases.UkrainianMonth;
+//import com.tish.db.bases.PhotoManager;
+//import com.tish.db.bases.UkrainianMonth;
+import com.tish.db.bases.PrefManager;
 import com.tish.db.connectors.CostConnector;
 import com.tish.dialogs.EditCostDialog;
 import com.tish.dialogs.EditGeoDialog;
-import com.tish.dialogs.EditPhotoDialog;
-import com.tish.dialogs.GetPhotoDialog;
+//import com.tish.dialogs.EditPhotoDialog;
+//import com.tish.dialogs.GetPhotoDialog;
 import com.tish.models.Cost;
 
 import java.time.YearMonth;
@@ -96,6 +85,7 @@ public class CostsListFragment extends Fragment {
 
     boolean costsExist = false;
     ArrayList<Cost> sortedCostsList;
+    private String[] months;
 
 
     @Override
@@ -172,6 +162,7 @@ public class CostsListFragment extends Fragment {
     }
 
     private void initDates(boolean hasCosts) {
+        months = getResources().getStringArray(R.array.month);
         thisYearMonth = YearMonth.now();
         currentYearMonth = thisYearMonth;
         if (hasCosts) {
@@ -196,7 +187,8 @@ public class CostsListFragment extends Fragment {
                 return tv;
             }
         });
-        ts.setText(UkrainianMonth.valueOf(thisYearMonth.getMonth().toString()).getUrkMonth() + ", " + thisYearMonth.getYear());
+        ts.setText(months[thisYearMonth.getMonthValue() - 1] + ", " + thisYearMonth.getYear());
+        //ts.setText(UkrainianMonth.valueOf(thisYearMonth.getMonth().toString()).getUrkMonth() + ", " + thisYearMonth.getYear());
     }
 
     private void setChartOptions(boolean hasCosts) {
@@ -211,11 +203,24 @@ public class CostsListFragment extends Fragment {
         if (hasCosts) {
             chart.setCenterText("-" + entries.stream().map(PieEntry::getValue).reduce(0f, Float::sum));
         } else {
-            chart.setCenterText("Загальні витрати");
+            chart.setCenterText(getResources().getString(R.string.total_amount_text));
         }
-        chart.setUsePercentValues(true);
-        chart.setDrawEntryLabels(false);
-        set.setDrawValues(false);
+
+        PrefManager chartManager = new PrefManager(getContext(), "def");
+        if (chartManager.isChartSetupChecked()) {
+            chart.setDrawEntryLabels(chartManager.isNamesShown());
+            if (chartManager.isValuesShown()) {
+                set.setDrawValues(true);
+                chart.setUsePercentValues(chartManager.isPercentShown());
+            } else {
+                set.setDrawValues(false);
+                chart.setUsePercentValues(false);
+            }
+        } else {
+            chart.setUsePercentValues(true);
+            chart.setDrawEntryLabels(false);
+            set.setDrawValues(false);
+        }
         chart.setSelected(false);
     }
 
@@ -231,7 +236,7 @@ public class CostsListFragment extends Fragment {
                     ts.setInAnimation(slideInRight);
                     ts.setOutAnimation(slideOutLeft);
                     YearMonth yearMonth = dateList.get(dateCounter);
-                    ts.setText(UkrainianMonth.valueOf(yearMonth.getMonth().toString()).getUrkMonth() + ", " + yearMonth.getYear());
+                    ts.setText(months[thisYearMonth.getMonthValue() - 1] + ", " + yearMonth.getYear());
 
                     currentYearMonth = yearMonth;
                     if (account.equals(getContext().getResources().getString(R.string.app_name)))
@@ -253,7 +258,7 @@ public class CostsListFragment extends Fragment {
                     ts.setInAnimation(slideInLeft);
                     ts.setOutAnimation(slideOutRight);
                     YearMonth yearMonth = dateList.get(dateCounter);
-                    ts.setText(UkrainianMonth.valueOf(yearMonth.getMonth().toString()).getUrkMonth() + ", " + yearMonth.getYear());
+                    ts.setText(months[thisYearMonth.getMonthValue() - 1] + ", " + yearMonth.getYear());
 
                     currentYearMonth = yearMonth;
                     if (account.equals(getContext().getResources().getString(R.string.app_name)))
@@ -300,6 +305,8 @@ public class CostsListFragment extends Fragment {
 
     void updateDataByDateAccount(String date, boolean useCurrent) {
 
+        boolean noCosts = false;
+
         costsList.clear();
         entries.clear();
         set.clear();
@@ -323,6 +330,7 @@ public class CostsListFragment extends Fragment {
             entries.add(new PieEntry(1));
             colors = new int[1];
             colors[0] = getResources().getColor(R.color.bright_blue, null);
+            noCosts = true;
         }
         costsListAdapter.setList(costsList);
         costsListView.setAdapter(costsListAdapter);
@@ -333,7 +341,11 @@ public class CostsListFragment extends Fragment {
 
         data.setDataSet(set);
 
-        chart.setCenterText("-" + entries.stream().map(PieEntry::getValue).reduce(0f, Float::sum));
+        if (noCosts)
+            chart.setCenterText(getResources().getString(R.string.total_amount_text));
+        else
+            chart.setCenterText("-" + entries.stream().map(PieEntry::getValue).reduce(0f, Float::sum));
+
         chart.notifyDataSetChanged();
         chart.invalidate();
     }
@@ -400,11 +412,11 @@ public class CostsListFragment extends Fragment {
                 BitmapDrawable bd = (BitmapDrawable) getContext().getResources().getDrawable(selectedCost.getCategory().getIconResource(), null);
                 LayerDrawable icon = new LayerDrawable(new Drawable[]{sd, bd});
                 AlertDialog deleteDialog = new AlertDialog.Builder(getContext())
-                        .setTitle("Видалення витрати")
+                        .setTitle(R.string.title_delete_cost)
                         .setIcon(icon)
-                        .setMessage("Ви певні, що бажаєте видалити витрату категорії '"
-                                + selectedCost.getCategoryName() + "' сумою " + selectedCost.getAmount() + "?")
-                        .setPositiveButton("Так, видалити", new DialogInterface.OnClickListener() {
+                        .setMessage(String.format(getResources().getString(R.string.message_delete_cost),
+                                getString(selectedCost.getCategoryName()), selectedCost.getAmount()))
+                        .setPositiveButton(R.string.button_yes_delete, new DialogInterface.OnClickListener() {
                             @Override
                             public void onClick(DialogInterface dialog, int which) {
                                 int result = costConnector.deleteCost(selectedCost.getCostId());
@@ -419,7 +431,7 @@ public class CostsListFragment extends Fragment {
                                     Toast.makeText(getContext(), "При видаленні сталась помилка", Toast.LENGTH_SHORT).show();
                             }
                         })
-                        .setNegativeButton("Ні", new DialogInterface.OnClickListener() {
+                        .setNegativeButton(R.string.button_no, new DialogInterface.OnClickListener() {
                             @Override
                             public void onClick(DialogInterface dialog, int which) {
                                 dialog.cancel();

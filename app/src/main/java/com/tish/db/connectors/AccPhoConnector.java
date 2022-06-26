@@ -6,7 +6,6 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 
 import com.tish.R;
-import com.tish.db.bases.DBContract.Photos;
 import com.tish.db.bases.DBContract.Accounts;
 import com.tish.db.bases.DBHelper;
 
@@ -50,26 +49,6 @@ public class AccPhoConnector {
         return number;
     }
 
-    public String getPhotoById(int photoId) {
-        db = dbHelper.getReadableDatabase();
-        apCursor = db.rawQuery("select " + Photos.COLUMN_LINK + " from " + Photos.TABLE_NAME + " where " + Photos.COLUMN_PHOTO_ID + "=" + photoId, null);
-        apCursor.moveToFirst();
-        String address = apCursor.getString(apCursor.getColumnIndexOrThrow(Photos.COLUMN_LINK));
-        apCursor.close();
-        db.close();
-        return address;
-    }
-
-    public int getPhotoId(String address) {
-        db = dbHelper.getReadableDatabase();
-        apCursor = db.rawQuery("select " + Photos.COLUMN_PHOTO_ID + " from " + Photos.TABLE_NAME + " where " + Photos.COLUMN_LINK + "='" + address + "'", null);
-        apCursor.moveToFirst();
-        int photoId = apCursor.getInt(apCursor.getColumnIndexOrThrow(Photos.COLUMN_PHOTO_ID));
-        apCursor.close();
-        db.close();
-        return photoId;
-    }
-
     public int getAccountIdByNumber(String number) {
         db = dbHelper.getReadableDatabase();
         apCursor = db.rawQuery("select " + Accounts.COLUMN_ACCOUNT_ID + " from " + Accounts.TABLE_NAME + " where " + Accounts.COLUMN_NUMBER + "='" + number + "'", null);
@@ -91,15 +70,6 @@ public class AccPhoConnector {
         return accountId;
     }
 
-    public int insertPhotoToGetPhotoId(String address) {
-        ContentValues cvPhoto = new ContentValues();
-        cvPhoto.put(Photos.COLUMN_LINK, address);
-        db = dbHelper.getWritableDatabase();
-        int photoId = (int) db.insert(Photos.TABLE_NAME, null, cvPhoto);
-        db.close();
-        return photoId;
-    }
-
     public long updateAccount(int accountId, String newNumber) {
         ContentValues cvAccount = new ContentValues();
         cvAccount.put(Accounts.COLUMN_NUMBER, newNumber);
@@ -112,13 +82,6 @@ public class AccPhoConnector {
     public int deleteAccount(String number) {
         db = dbHelper.getWritableDatabase();
         int result = db.delete(Accounts.TABLE_NAME, Accounts.COLUMN_NUMBER + "='" + number + "'", null);
-        db.close();
-        return result;
-    }
-
-    public int deletePhoto(int photoId) {
-        db = dbHelper.getWritableDatabase();
-        int result = db.delete(Photos.TABLE_NAME, Photos.COLUMN_PHOTO_ID + "=" + photoId, null);
         db.close();
         return result;
     }

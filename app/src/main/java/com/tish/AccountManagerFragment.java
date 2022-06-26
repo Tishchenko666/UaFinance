@@ -62,10 +62,9 @@ public class AccountManagerFragment extends Fragment {
             @Override
             public boolean onItemLongClick(AdapterView<?> adapterView, View view, int position, long l) {
                 AlertDialog deleteDialog = new AlertDialog.Builder(getContext())
-                        .setTitle("Видалити рахунок")
-                        .setMessage("Ви певні, що бажаєте видалити рахунок " +
-                                accountList.get(position) + "?")
-                        .setPositiveButton("Так, видалити", new DialogInterface.OnClickListener() {
+                        .setTitle(R.string.title_delete_account)
+                        .setMessage(String.format(getString(R.string.message_delete_account), accountList.get(position)))
+                        .setPositiveButton(R.string.button_yes_delete, new DialogInterface.OnClickListener() {
                             @Override
                             public void onClick(DialogInterface dialog, int which) {
                                 int result = accountConnector.deleteAccount(accountList.get(position));
@@ -76,7 +75,7 @@ public class AccountManagerFragment extends Fragment {
                                 dialog.dismiss();
                             }
                         })
-                        .setNegativeButton("Ні", new DialogInterface.OnClickListener() {
+                        .setNegativeButton(R.string.button_no, new DialogInterface.OnClickListener() {
                             @Override
                             public void onClick(DialogInterface dialog, int which) {
                                 dialog.cancel();

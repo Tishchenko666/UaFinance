@@ -19,7 +19,7 @@ import androidx.appcompat.widget.Toolbar;
 import com.tish.adapters.StatisticsListAdapter;
 import com.tish.db.bases.PrefManager;
 import com.tish.db.bases.Season;
-import com.tish.db.bases.UkrainianMonth;
+//import com.tish.db.bases.UkrainianMonth;
 import com.tish.db.connectors.CostConnector;
 import com.tish.db.connectors.StatisticsConnector;
 import com.tish.dialogs.SetupStatisticsDialog;
@@ -65,7 +65,7 @@ public class StatisticsActivity extends AppCompatActivity implements FragmentSen
     private void initToolbar() {
         Toolbar toolbar = findViewById(R.id.no_spinner_toolbar_view);
         setSupportActionBar(toolbar);
-        getSupportActionBar().setTitle("Статистика");
+        getSupportActionBar().setTitle(R.string.nav_item_statistic);
         getSupportActionBar().setDisplayShowTitleEnabled(false);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
     }
@@ -81,7 +81,7 @@ public class StatisticsActivity extends AppCompatActivity implements FragmentSen
             dateList.add(0, thisYearMonth);
         }
         List<String> spinnerDatesList = dateList.stream().map(YearMonth::toString).collect(Collectors.toList());
-        spinnerDatesList.add(0, "Всі дати");
+        spinnerDatesList.add(0, getString(R.string.spinner_item_all_dates));
         ArrayAdapter<String> adapter = new ArrayAdapter<String>(this, android.R.layout.simple_spinner_item, spinnerDatesList);
         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         simpleDateSpinner.setAdapter(adapter);
@@ -158,10 +158,11 @@ public class StatisticsActivity extends AppCompatActivity implements FragmentSen
                         else if (dateSettingsMap.get("dateType").equals("m"))
                             statisticsAdapter = new StatisticsListAdapter(StatisticsActivity.this, dateStatisticsList,
                                     dateSettingsMap.get("dateType"),
-                                    UkrainianMonth.values()[Integer.parseInt(dateSettingsMap.get("dateContent")) - 1].getUrkMonth());
+                                    getResources().getStringArray(R.array.month)[Integer.parseInt(dateSettingsMap.get("dateContent")) - 1]);
                         else
                             statisticsAdapter = new StatisticsListAdapter(StatisticsActivity.this, dateStatisticsList,
-                                    dateSettingsMap.get("dateType"), Season.values()[Integer.parseInt(dateSettingsMap.get("dateContent"))].getName());
+                                    dateSettingsMap.get("dateType"),
+                                    getResources().getStringArray(R.array.season)[Integer.parseInt(dateSettingsMap.get("dateContent"))]);
 
                         statisticsListView.setAdapter(statisticsAdapter);
                         statisticsListView.setVisibility(View.VISIBLE);

@@ -4,11 +4,22 @@ import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.SharedPreferences;
 
+import androidx.preference.PreferenceManager;
+
 import com.tish.R;
 
 import java.time.LocalDate;
+import java.util.prefs.Preferences;
+import java.util.prefs.PreferencesFactory;
 
 public class PrefManager {
+
+    private final String APP_LANG = "lang";
+    private final String SETUP_CHART = "diagram";
+    private final String SHOW_NAMES = "names";
+    private final String SHOW_VALUES = "values";
+    private final String SHOW_VALUES_AS_PERCENT = "percent";
+
 
     private final String IS_FIRST_KEY = "isFirst";
     private final String FIRST_DATE_KEY = "firstDate";
@@ -24,10 +35,12 @@ public class PrefManager {
     private final String DATE_TYPE_KEY = "dateType";
     private final String DATE_SETUP_KEY = "dateSetup";
 
+    private final String DEF_FILE = "def";
     private final String FIRST_FILE = "first";
     private final String USER_FILE = "userData";
     private final String STAT_FILE = "statSettings";
 
+    private SharedPreferences defPrefs;
     private SharedPreferences firstPrefs;
     private SharedPreferences userPrefs;
     private SharedPreferences statPrefs;
@@ -40,6 +53,9 @@ public class PrefManager {
     public PrefManager(Context c, String fileName) {
         this.context = c;
         switch (fileName) {
+            case DEF_FILE:
+                defPrefs = PreferenceManager.getDefaultSharedPreferences(context);
+                break;
             case FIRST_FILE:
                 firstPrefs = context.getSharedPreferences(FIRST_FILE, Context.MODE_PRIVATE);
                 firstEditor = firstPrefs.edit();
@@ -59,6 +75,26 @@ public class PrefManager {
                 userEditor = userPrefs.edit();
                 break;
         }
+    }
+
+    public String getLanguage() {
+        return defPrefs.getString(APP_LANG, "uk");
+    }
+
+    public boolean isChartSetupChecked() {
+        return defPrefs.getBoolean(SETUP_CHART, false);
+    }
+
+    public boolean isNamesShown() {
+        return defPrefs.getBoolean(SHOW_NAMES, false);
+    }
+
+    public boolean isValuesShown() {
+        return defPrefs.getBoolean(SHOW_VALUES, false);
+    }
+
+    public boolean isPercentShown() {
+        return defPrefs.getBoolean(SHOW_VALUES_AS_PERCENT, false);
     }
 
     public boolean isFirstLaunch() {

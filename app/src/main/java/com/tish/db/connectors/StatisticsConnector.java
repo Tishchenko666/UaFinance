@@ -4,6 +4,7 @@ import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 
+import com.tish.R;
 import com.tish.db.bases.Category;
 import com.tish.db.bases.DBContract.Costs;
 import com.tish.db.bases.DBContract.Geolocations;
@@ -18,9 +19,11 @@ public class StatisticsConnector {
     private DBHelper dbHelper;
     private SQLiteDatabase db;
     private Cursor statisticsCursor;
+    private Context context;
 
     public StatisticsConnector(Context context) {
         this.dbHelper = DBHelper.newInstance(context);
+        this.context = context;
     }
 
     public List<StatisticsItem> getCategoryMarketStatistics(char type) {
@@ -43,12 +46,14 @@ public class StatisticsConnector {
         int column = 0;
         while (statisticsCursor.moveToNext()) {
             String category = statisticsCursor.getString(column);
+            if (category == null)
+                category = context.getResources().getString(R.string.no_place);
             double amount = statisticsCursor.getDouble(column + 1);
             double percent = statisticsCursor.getDouble(column + 2);
             if (type == 'm')
                 itemList.add(new StatisticsItem(category, -amount, percent));
             else
-                itemList.add(new StatisticsItem(Category.valueOf(category).getCategoryName(), -amount, percent));
+                itemList.add(new StatisticsItem(context.getString(Category.valueOf(category).getCategoryName()), -amount, percent));
         }
         statisticsCursor.close();
         db.close();
@@ -75,12 +80,14 @@ public class StatisticsConnector {
         int column = 0;
         while (statisticsCursor.moveToNext()) {
             String category = statisticsCursor.getString(column);
+            if (category == null)
+                category = context.getResources().getString(R.string.no_place);
             double amount = statisticsCursor.getDouble(column + 1);
             double percent = statisticsCursor.getDouble(column + 2);
             if (type == 'm')
                 itemList.add(new StatisticsItem(category, -amount, percent));
             else
-                itemList.add(new StatisticsItem(Category.valueOf(category).getCategoryName(), -amount, percent));
+                itemList.add(new StatisticsItem(context.getString(Category.valueOf(category).getCategoryName()), -amount, percent));
         }
         statisticsCursor.close();
         db.close();
@@ -155,12 +162,14 @@ public class StatisticsConnector {
         int column = 0;
         while (statisticsCursor.moveToNext()) {
             String category = statisticsCursor.getString(column);
+            if (category == null)
+                category = context.getResources().getString(R.string.no_place);
             String date = statisticsCursor.getString(column + 1);
             double amount = statisticsCursor.getDouble(column + 2);
             if (type == 'm')
                 itemList.add(new StatisticsItem(category, date, -amount));
             else
-                itemList.add(new StatisticsItem(Category.valueOf(category).getCategoryName(), date, -amount));
+                itemList.add(new StatisticsItem(context.getString(Category.valueOf(category).getCategoryName()), date, -amount));
         }
         statisticsCursor.close();
         db.close();
@@ -204,13 +213,13 @@ public class StatisticsConnector {
         while (statisticsCursor.moveToNext()) {
             String category = statisticsCursor.getString(column);
             if (category == null)
-                category = "Місце невідоме";
+                category = context.getResources().getString(R.string.no_place);
             String date = statisticsCursor.getString(column + 1);
             double amount = statisticsCursor.getDouble(column + 2);
             if (type == 'm')
                 itemList.add(new StatisticsItem(category, date, -amount));
             else
-                itemList.add(new StatisticsItem(Category.valueOf(category).getCategoryName(), date, -amount));
+                itemList.add(new StatisticsItem(context.getString(Category.valueOf(category).getCategoryName()), date, -amount));
         }
         statisticsCursor.close();
         db.close();

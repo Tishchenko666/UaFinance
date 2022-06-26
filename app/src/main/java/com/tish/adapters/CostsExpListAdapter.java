@@ -49,7 +49,7 @@ public class CostsExpListAdapter extends BaseExpandableListAdapter {
         sd.setIntrinsicWidth(30);
         sd.getPaint().setColor(context.getResources().getColor(cost.getCategory().getColorResource(), null));
         imageViewCategoryIcon.setBackground(sd);
-        textViewCategory.setText(cost.getCategoryName());
+        textViewCategory.setText(context.getString(cost.getCategoryName()));
         textViewAmount.setText(String.format("-%s", cost.getAmount()));
 
         return view;
@@ -71,7 +71,7 @@ public class CostsExpListAdapter extends BaseExpandableListAdapter {
         if (cost.getMarketName() != null)
             textViewMarketName.setText(cost.getMarketName());
         else
-            textViewMarketName.setText("Місце покупки не вказано");
+            textViewMarketName.setText(R.string.no_place);
 
         textViewDate.setText(cost.getDate());
 

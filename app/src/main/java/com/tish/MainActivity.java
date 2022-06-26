@@ -1,9 +1,5 @@
 package com.tish;
 
-import androidx.activity.result.ActivityResult;
-import androidx.activity.result.ActivityResultCallback;
-import androidx.activity.result.ActivityResultLauncher;
-import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.ActionBarDrawerToggle;
 
@@ -17,9 +13,8 @@ import androidx.fragment.app.FragmentTransaction;
 
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.graphics.Bitmap;
+import android.content.res.Configuration;
 import android.os.Bundle;
-import android.provider.MediaStore;
 import android.text.Html;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -30,14 +25,13 @@ import android.widget.Spinner;
 import android.widget.Toast;
 
 import com.google.android.material.navigation.NavigationView;
-import com.tish.db.bases.PhotoManager;
 import com.tish.db.bases.PrefManager;
 import com.tish.db.connectors.AccPhoConnector;
-import com.tish.db.connectors.CostConnector;
 import com.tish.dialogs.AddCostDialog;
 import com.tish.interfaces.FragmentSendDataListener;
 
 import java.util.List;
+import java.util.Locale;
 
 public class MainActivity extends AppCompatActivity implements FragmentSendDataListener {
 
@@ -50,6 +44,14 @@ public class MainActivity extends AppCompatActivity implements FragmentSendDataL
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        PrefManager langManager = new PrefManager(getBaseContext(), "def");
+        if (!getString(R.string.current_locale).equals(langManager.getLanguage())) {
+            Locale locale = new Locale(langManager.getLanguage());
+            Locale.setDefault(locale);
+            Configuration configuration = new Configuration();
+            configuration.setLocale(locale);
+            getBaseContext().getResources().updateConfiguration(configuration, null);
+        }
         setContentView(R.layout.activity_main);
         initView();
     }
@@ -138,6 +140,9 @@ public class MainActivity extends AppCompatActivity implements FragmentSendDataL
                         finish();
                         break;
                     case R.id.nav_settings:
+                        openIntent.setClass(MainActivity.this, SettingsActivity.class);
+                        startActivity(openIntent);
+                        finish();
                         break;
                     default:
                         Toast.makeText(MainActivity.this, "Nothing selected", Toast.LENGTH_LONG).show();

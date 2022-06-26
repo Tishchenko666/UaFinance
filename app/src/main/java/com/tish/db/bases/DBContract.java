@@ -15,7 +15,6 @@ public final class DBContract {
         public static final String COLUMN_MARKET_NAME = "market_name";
         public static final String COLUMN_ACCOUNT_ID = "account_id";
         public static final String COLUMN_GEO_ID = "geo_id";
-        public static final String COLUMN_PHOTO_ID = "photo_id";
 
         public static final String CREATE_TABLE_COSTS = "CREATE TABLE IF NOT EXISTS " +
                 TABLE_NAME + " (" +
@@ -26,30 +25,8 @@ public final class DBContract {
                 COLUMN_MARKET_NAME + " TEXT, " +
                 COLUMN_ACCOUNT_ID + " INTEGER, " +
                 COLUMN_GEO_ID + " INTEGER, " +
-                COLUMN_PHOTO_ID + " INTEGER, " +
                 "FOREIGN KEY (" + COLUMN_ACCOUNT_ID + ") REFERENCES " + Accounts.TABLE_NAME + ", " +
-                "FOREIGN KEY (" + COLUMN_GEO_ID + ") REFERENCES " + Geolocations.TABLE_NAME + ", " +
-                "FOREIGN KEY (" + COLUMN_PHOTO_ID + ") REFERENCES " + Photos.TABLE_NAME + ")";
-    }
-
-    public static class Incomes implements BaseColumns {
-        public static final String TABLE_NAME = "incomes";
-        public static final String COLUMN_INCOME_ID = "income_id";
-        public static final String COLUMN_CATEGORY = "category";
-        public static final String COLUMN_AMOUNT = "amount";
-        public static final String COLUMN_DATE = "date";
-        public static final String COLUMN_SOURCE = "source";
-        public static final String COLUMN_ACCOUNT_ID = "account_id";
-
-        public static final String CREATE_TABLE_INCOMES = "CREATE TABLE IF NOT EXISTS " +
-                TABLE_NAME + " (" +
-                COLUMN_INCOME_ID + " INTEGER PRIMARY KEY AUTOINCREMENT, " +
-                COLUMN_CATEGORY + " TEXT NOT NULL, " +
-                COLUMN_AMOUNT + " REAL NOT NULL, " +
-                COLUMN_DATE + " TEXT NOT NULL, " +
-                COLUMN_SOURCE + " TEXT, " +
-                COLUMN_ACCOUNT_ID + " INTEGER, " +
-                "FOREIGN KEY (" + COLUMN_ACCOUNT_ID + ") REFERENCES " + Accounts.TABLE_NAME + ")";
+                "FOREIGN KEY (" + COLUMN_GEO_ID + ") REFERENCES " + Geolocations.TABLE_NAME + ")";
     }
 
     public static class Geolocations implements BaseColumns {
@@ -80,16 +57,5 @@ public final class DBContract {
                 TABLE_NAME + " (" +
                 COLUMN_ACCOUNT_ID + " INTEGER PRIMARY KEY AUTOINCREMENT, " +
                 COLUMN_NUMBER + " TEXT NOT NULL UNIQUE)";
-    }
-
-    public static class Photos implements BaseColumns {
-        public static final String TABLE_NAME = "photos";
-        public static final String COLUMN_PHOTO_ID = "photo_id";
-        public static final String COLUMN_LINK = "link";
-
-        public static final String CREATE_TABLE_PHOTOS = "CREATE TABLE IF NOT EXISTS " +
-                TABLE_NAME + " (" +
-                COLUMN_PHOTO_ID + " INTEGER PRIMARY KEY AUTOINCREMENT, " +
-                COLUMN_LINK + " TEXT NOT NULL)";
     }
 }

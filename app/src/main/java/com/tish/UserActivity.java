@@ -69,6 +69,9 @@ public class UserActivity extends AppCompatActivity implements FragmentSendAccou
                         finish();
                         break;
                     case R.id.nav_settings:
+                        openIntent.setClass(UserActivity.this, SettingsActivity.class);
+                        startActivity(openIntent);
+                        finish();
                         break;
                     default:
                         Toast.makeText(UserActivity.this, "Nothing selected", Toast.LENGTH_LONG).show();

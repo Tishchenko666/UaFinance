@@ -114,7 +114,7 @@ public class Cost {
         this.category = category;
     }
 
-    public String getCategoryName() {
+    public int getCategoryName() {
         return category.getCategoryName();
     }
 

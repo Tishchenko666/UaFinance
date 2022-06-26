@@ -51,7 +51,7 @@ public class ProfileFragment extends Fragment {
         startDateTextView = view.findViewById(R.id.tv_start_date);
         startDateTextView.setText(LocalDate.parse(prefManager.getFirstDate()).format(DateTimeFormatter.ofPattern("dd-MM-yyyy")));
         periodTextView = view.findViewById(R.id.tv_working_period);
-        periodTextView.setText((LocalDate.now().toEpochDay() - LocalDate.parse(prefManager.getFirstDate()).toEpochDay()) + " днів");
+        periodTextView.setText(String.format(getString(R.string.using_period_days), LocalDate.now().toEpochDay() - LocalDate.parse(prefManager.getFirstDate()).toEpochDay()));
 
         return view;
     }

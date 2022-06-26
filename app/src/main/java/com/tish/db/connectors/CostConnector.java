@@ -28,11 +28,13 @@ public class CostConnector {
     private Cursor costCursor;
     private AccPhoConnector accPhoConnector;
     private GeoConnector geoConnector;
+    private Context context;
 
     public CostConnector(Context context) {
         this.dbHelper = DBHelper.newInstance(context);
         accPhoConnector = new AccPhoConnector(context);
         geoConnector = new GeoConnector(context);
+        this.context = context;
     }
 
 
@@ -60,7 +62,6 @@ public class CostConnector {
             String marketName = costCursor.getString(costCursor.getColumnIndexOrThrow(Costs.COLUMN_MARKET_NAME));
             Integer accountId = costCursor.getInt(costCursor.getColumnIndexOrThrow(Costs.COLUMN_ACCOUNT_ID));
             Integer geoId = costCursor.getInt(costCursor.getColumnIndexOrThrow(Costs.COLUMN_GEO_ID));
-            Integer photoId = costCursor.getInt(costCursor.getColumnIndexOrThrow(Costs.COLUMN_PHOTO_ID));
             tempCost = new Cost(costId, Category.valueOf(category), amount, date, marketName);
             if (accountId != null) {
                 tempCost.setAccountNumber(accPhoConnector.getAccountById(accountId));
@@ -68,9 +69,6 @@ public class CostConnector {
             if (geoId != null) {
                 Geolocation geo = geoConnector.getGeoById(geoId);
                 tempCost.setGeo(geo);
-            }
-            if (photoId != null) {
-                tempCost.setPhotoAddress(accPhoConnector.getPhotoById(photoId));
             }
             costs.add(0, tempCost);
         }
@@ -116,7 +114,6 @@ public class CostConnector {
             String marketName = costCursor.getString(costCursor.getColumnIndexOrThrow(Costs.COLUMN_MARKET_NAME));
             int accountId = costCursor.getInt(costCursor.getColumnIndexOrThrow(Costs.COLUMN_ACCOUNT_ID));
             int geoId = costCursor.getInt(costCursor.getColumnIndexOrThrow(Costs.COLUMN_GEO_ID));
-            int photoId = costCursor.getInt(costCursor.getColumnIndexOrThrow(Costs.COLUMN_PHOTO_ID));
             tempCost = new Cost(costId, Category.valueOf(category), amount, date, marketName);
             if (accountId != 0) {
                 tempCost.setAccountNumber(accPhoConnector.getAccountById(accountId));
@@ -124,9 +121,6 @@ public class CostConnector {
             if (geoId != 0) {
                 Geolocation geo = geoConnector.getGeoById(geoId);
                 tempCost.setGeo(geo);
-            }
-            if (photoId != 0) {
-                tempCost.setPhotoAddress(accPhoConnector.getPhotoById(photoId));
             }
             costsByDate.add(0, tempCost);
         }
@@ -151,14 +145,10 @@ public class CostConnector {
             String date = costCursor.getString(costCursor.getColumnIndexOrThrow(Costs.COLUMN_DATE));
             String marketName = costCursor.getString(costCursor.getColumnIndexOrThrow(Costs.COLUMN_MARKET_NAME));
             int geoId = costCursor.getInt(costCursor.getColumnIndexOrThrow(Costs.COLUMN_GEO_ID));
-            int photoId = costCursor.getInt(costCursor.getColumnIndexOrThrow(Costs.COLUMN_PHOTO_ID));
             tempCost = new Cost(costId, Category.valueOf(category), amount, date, marketName, currentAccount);
             if (geoId != 0) {
                 Geolocation geo = geoConnector.getGeoById(geoId);
                 tempCost.setGeo(geo);
-            }
-            if (photoId != 0) {
-                tempCost.setPhotoAddress(accPhoConnector.getPhotoById(photoId));
             }
             costsByDate.add(0, tempCost);
         }
@@ -177,7 +167,7 @@ public class CostConnector {
         while (costCursor.moveToNext()) {
             String category = costCursor.getString(costCursor.getColumnIndexOrThrow(Costs.COLUMN_CATEGORY));
             float totalAmount = (float) costCursor.getDouble(costCursor.getColumnIndexOrThrow(Costs.COLUMN_CATEGORY) + 1);
-            pieEntries.add(new PieEntry(totalAmount, Category.valueOf(category).getCategoryName()));
+            pieEntries.add(new PieEntry(totalAmount, context.getString(Category.valueOf(category).getCategoryName())));
         }
 
         costCursor.close();
@@ -197,7 +187,7 @@ public class CostConnector {
         while (costCursor.moveToNext()) {
             String category = costCursor.getString(costCursor.getColumnIndexOrThrow(Costs.COLUMN_CATEGORY));
             float totalAmount = (float) costCursor.getDouble(costCursor.getColumnIndexOrThrow(Costs.COLUMN_CATEGORY) + 1);
-            pieEntries.add(new PieEntry(totalAmount, Category.valueOf(category).getCategoryName()));
+            pieEntries.add(new PieEntry(totalAmount, context.getString(Category.valueOf(category).getCategoryName())));
         }
         costCursor.close();
         db.close();
@@ -287,9 +277,6 @@ public class CostConnector {
         if (cost.getGeo() != null) {
             cvNewCost.put(Costs.COLUMN_GEO_ID, geoConnector.insertGeolocationToGetId(cost.getGeo()));
         }
-        if (cost.getPhotoAddress() != null) {
-            cvNewCost.put(Costs.COLUMN_PHOTO_ID, accPhoConnector.insertPhotoToGetPhotoId(cost.getPhotoAddress()));
-        }
         db = dbHelper.getWritableDatabase();
         long result = db.insert(Costs.TABLE_NAME, null, cvNewCost);
         db.close();
@@ -327,35 +314,10 @@ public class CostConnector {
         return result;
     }
 
-    public int updatePhotoInCost(String address, int costId) {
-        int photoId = accPhoConnector.insertPhotoToGetPhotoId(address);
-        ContentValues cvPhoto = new ContentValues();
-        cvPhoto.put(Costs.COLUMN_PHOTO_ID, photoId);
-        db = dbHelper.getWritableDatabase();
-        int result = db.update(Costs.TABLE_NAME, cvPhoto, Costs.COLUMN_COST_ID + "=" + costId, null);
-        db.close();
-        return result;
-    }
-
     public int deleteCost(int costId) {
         db = dbHelper.getWritableDatabase();
         int result = db.delete(Costs.TABLE_NAME, Costs.COLUMN_COST_ID + "=?", new String[]{String.valueOf(costId)});
         db.close();
-        return result;
-    }
-
-    public int deletePhotoIdInCost(String photoAddress, int costId) {
-        int photoId = accPhoConnector.getPhotoId(photoAddress);
-        int deleteResult = accPhoConnector.deletePhoto(photoId);
-        int result = -1;
-        if (deleteResult > 0) {
-            ContentValues cvPhotoId = new ContentValues();
-            String phid = null;
-            cvPhotoId.put(Costs.COLUMN_PHOTO_ID, phid);
-            db = dbHelper.getWritableDatabase();
-            result = db.update(Costs.TABLE_NAME, cvPhotoId, Costs.COLUMN_COST_ID + "=?", new String[]{String.valueOf(costId)});
-            db.close();
-        }
         return result;
     }
 

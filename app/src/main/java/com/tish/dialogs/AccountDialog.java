@@ -49,7 +49,7 @@ public class AccountDialog extends DialogFragment {
     @Override
     public Dialog onCreateDialog(@Nullable Bundle savedInstanceState) {
         AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
-        builder.setTitle("Дані рахункку");
+        builder.setTitle(R.string.title_account_data);
         View accountView = getActivity().getLayoutInflater().inflate(R.layout.account_dialog_view, null);
         accountEditText = accountView.findViewById(R.id.et_account_number);
         if (getTag().equals("ead")) {
@@ -58,8 +58,8 @@ public class AccountDialog extends DialogFragment {
         }
         errorTextView = accountView.findViewById(R.id.tv_account_error);
         builder.setView(accountView);
-        builder.setPositiveButton("Зберегти", null);
-        builder.setNegativeButton("Відмінити", new DialogInterface.OnClickListener() {
+        builder.setPositiveButton(R.string.button_save, null);
+        builder.setNegativeButton(R.string.button_cancel, new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
                 dialog.cancel();
@@ -75,10 +75,10 @@ public class AccountDialog extends DialogFragment {
                     public void onClick(View view) {
                         String number = accountEditText.getText().toString();
                         if (number.equals("")) {
-                            errorTextView.setText("Номер рахунку необхідно вказати");
+                            errorTextView.setText(R.string.specify_account_number_text);
                             errorTextView.setVisibility(View.VISIBLE);
                         } else if (!number.matches("\\d+")) {
-                            errorTextView.setText("Номер рахунку має складатися з цифр");
+                            errorTextView.setText(R.string.account_number_have_numbers_text);
                             errorTextView.setVisibility(View.VISIBLE);
                         } else {
                             errorTextView.setVisibility(View.INVISIBLE);
